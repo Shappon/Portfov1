@@ -51,7 +51,7 @@ export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
 
   return (
     <animated.div
-      className={`detail-panel-wrap position-absolute top-0 end-0 h-100 d-flex align-items-stretch overflow-hidden${isMeSection ? " detail-panel-me-active" : ""}${isProjectsSection ? " detail-panel-projects-active" : ""}${isAISection ? " detail-panel-ai-active" : ""}`}
+      className={`detail-panel-wrap position-absolute top-0 end-0 h-100 min-h-0 d-flex align-items-stretch overflow-hidden${isMeSection ? " detail-panel-me-active" : ""}${isProjectsSection ? " detail-panel-projects-active" : ""}${isAISection ? " detail-panel-ai-active" : ""}`}
       style={{
         /* Réserver ~35% à gauche pour la forme 3D, max 1500px, fluide */
         width: "min(65vw, 1500px)",
@@ -66,9 +66,9 @@ export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
       role="dialog"
       aria-label={section.title}
     >
-      <div className="card shadow-lg border-0 rounded-3 w-100 h-100 d-flex flex-column overflow-hidden">
+      <div className="card detail-panel-card-shell shadow-lg border-0 rounded-3 w-100 h-100 d-flex flex-column overflow-hidden min-h-0">
         <div
-          className={`card-body d-flex flex-column ${
+          className={`card-body d-flex flex-column min-h-0 ${
             isFullscreenSection ? "p-0 overflow-hidden" : "p-4 overflow-auto"
           }`}
         >
@@ -84,7 +84,7 @@ export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
               </div>
               <button
                 type="button"
-                className="btn btn-sm btn-light flex-shrink-0"
+                className="btn btn-sm btn-light flex-shrink-0 detail-panel-close-btn"
                 onClick={onBack}
                 aria-label="Fermer le panneau et revenir au carousel"
               >

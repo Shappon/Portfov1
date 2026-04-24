@@ -128,12 +128,6 @@ a:focus-visible {
     width: 100%;
     margin: 0 0.5rem;
   }
-
-  /* Garder ~32% à gauche pour la forme 3D, même sur mobile */
-  .detail-panel-wrap {
-    width: min(68vw, 100%) !important;
-    max-width: min(68vw, 100%) !important;
-  }
 }
 
 .home3d-mask {
@@ -282,12 +276,6 @@ a:focus-visible {
   max-width: min(65vw, 1500px);
 }
 
-@media (max-width: 768px) {
-  .detail-panel-wrap {
-    max-width: min(68vw, 100%) !important;
-  }
-}
-
 /* Section Moi : hover cartes + timeline */
 .detail-panel-me-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -385,6 +373,108 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   width: 100%;
+  /* Le scroll est dans les panneaux enfants (me-panel-main, projects explorer, ai-roadmap) */
+  overflow: hidden;
+}
+
+/* Liste des projets : le parent flex ne doit pas rogner (min-height) ; zone liste scrollable */
+.projects-panel-root,
+.projects-panel-view {
+  min-height: 0;
+}
+
+.projects-panel-explorer--scrollable {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ——— Mobile (≤768px) : pleine largeur, hauteur viewport dynamique, safe areas, scroll projets ———
+   Le desktop (≥769px) n’est pas affecté : règles ciblées par media query. */
+@media (max-width: 768px) {
+  body.home-fullpage {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .home3d-root {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .detail-panel-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    z-index: 3;
+  }
+
+  .home3d-root--detail-narrow .home3d-canvas {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .detail-panel-fullscreen-topbar {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  }
+
+  .detail-panel-card-shell {
+    border-radius: 0 !important;
+  }
+
+  .detail-panel-fullscreen-content {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .me-panel-hero,
+  .projects-panel-filters,
+  .ai-lab-hero,
+  .ai-lab-nav,
+  .ai-roadmap-timeline--horizontal {
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+
+  .me-panel-nav-card {
+    min-height: 44px;
+  }
+
+  .ai-lab-nav-btn {
+    min-height: 44px;
+  }
+
+  .ai-roadmap-node--horizontal {
+    min-height: 48px;
+    min-width: 2.75rem;
+    padding: 0.4rem 0.35rem;
+  }
+
+  .ai-roadmap-detail-panel {
+    padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+    padding-bottom: max(1.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .project-case-study {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .detail-panel-close-btn {
+    min-height: 44px;
+  }
+}
+
+/* Pointer tactile (souvent mobile) : marges légèrement confortables */
+@media (max-width: 768px) and (pointer: coarse) {
+  .me-panel-main {
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  }
 }
 
 /* ——— Panel Moi (MePanel) ——— Hero + contenu centré, padding cohérent */

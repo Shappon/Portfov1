@@ -1048,13 +1048,13 @@ function ProjectsExplorer({
   }));
 
   return (
-    <div className="projects-panel-explorer d-flex flex-column h-100">
-      <header className="projects-panel-header mb-4 mb-md-5 text-center">
+    <div className="projects-panel-explorer projects-panel-explorer--scrollable d-flex flex-column h-100 min-h-0">
+      <header className="projects-panel-header mb-4 mb-md-5 text-center flex-shrink-0">
         <h1 className="projects-panel-title mb-0">Explorer mes projets</h1>
       </header>
 
-      <div className="projects-panel-filters mb-4 mb-md-5 d-flex justify-content-center">
-        <div className="d-flex flex-wrap gap-2 overflow-auto pb-1 justify-content-center">
+      <div className="projects-panel-filters mb-4 mb-md-5 d-flex justify-content-center flex-shrink-0">
+        <div className="d-flex flex-wrap gap-2 overflow-x-auto overflow-y-hidden pb-1 justify-content-center">
           <button
             type="button"
             className={`btn btn-pill btn-pill-main ${categoryFilter === null ? "btn-pill-main--active" : "btn-pill-main--inactive"}`}
@@ -1075,7 +1075,7 @@ function ProjectsExplorer({
         </div>
       </div>
 
-      <section className="projects-panel-grid flex-grow-1 mt-2 mb-4">
+      <section className="projects-panel-grid mt-2 mb-4 flex-shrink-0">
         <div className="row g-3">
           {filtered.map((project, i) => (
             <div key={project.id} className="col-12 col-md-6 col-lg-4">
@@ -1108,10 +1108,10 @@ export function ProjectsPanel() {
   });
 
   return (
-    <div className="projects-panel-root d-flex flex-column w-100 h-100">
+    <div className="projects-panel-root d-flex flex-column w-100 h-100 min-h-0">
       <animated.div
         key={selectedProject ? "detail" : "explorer"}
-        className="projects-panel-view w-100 h-100 d-flex flex-column"
+        className="projects-panel-view w-100 h-100 min-h-0 d-flex flex-column"
         style={{
           opacity: transitionSpring.opacity,
           transform: transitionSpring.y.to((y) => `translateY(${y}px)`),

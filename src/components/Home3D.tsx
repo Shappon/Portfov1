@@ -72,9 +72,15 @@ export default function Home3D() {
 
   const active = SECTIONS[activeIndex];
   const reduceMotion = useMediaQueryMatch("(prefers-reduced-motion: reduce)");
+  const isNarrowViewport = useMediaQueryMatch("(max-width: 768px)");
+  const detailNarrow = viewMode === "detail" && isNarrowViewport;
 
   return (
-    <div className={`home3d-root ${viewMode === "detail" ? " detail" : ""}`}>
+    <div
+      className={`home3d-root${viewMode === "detail" ? " detail" : ""}${
+        detailNarrow ? " home3d-root--detail-narrow" : ""
+      }`}
+    >
       <div className="home3d-bg" aria-hidden="true" />
       <div className="home3d-mask" aria-hidden="true" />
       <Canvas

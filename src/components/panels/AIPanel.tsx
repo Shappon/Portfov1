@@ -383,7 +383,7 @@ export function AIPanel() {
   const activeIndex = ROADMAP_STEPS.findIndex((s) => s.id === activeStep);
 
   return (
-    <div className="ai-lab-root ai-lab-root--roadmap">
+    <div className="ai-lab-root ai-lab-root--roadmap h-100 min-h-0">
       <header className="ai-lab-hero ai-lab-hero--roadmap">
         <div className="ai-lab-hero-inner">
           <div className="ai-lab-hero-badge" aria-hidden>
