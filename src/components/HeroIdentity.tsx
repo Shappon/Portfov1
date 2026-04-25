@@ -9,19 +9,6 @@ export const HERO_IDENTITY = {
   role: "Développeur Full-Stack",
 } as const;
 
-function formatTodayFr(): string {
-  try {
-    return new Intl.DateTimeFormat("fr-FR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(new Date());
-  } catch {
-    return new Date().toLocaleDateString("fr-FR");
-  }
-}
-
 const DURATION = 0.6;
 const STAGGER = 0.12;
 const EASE = [0.25, 0.46, 0.45, 0.94] as const;
@@ -36,8 +23,6 @@ interface HeroIdentityProps {
 export function HeroIdentity({ isHighlight = false, reduceMotion = false }: HeroIdentityProps) {
   const duration = reduceMotion ? 0 : DURATION;
   const stagger = reduceMotion ? 0 : STAGGER;
-  const today = formatTodayFr();
-
   return (
     <motion.div
       className={`hero-identity ${isHighlight ? "hero-identity--highlight" : ""}`}
@@ -77,15 +62,6 @@ export function HeroIdentity({ isHighlight = false, reduceMotion = false }: Hero
           transition={{ duration, delay: 0.25 + stagger * 2, ease: EASE }}
         >
           {HERO_IDENTITY.role}
-        </motion.p>
-
-        <motion.p
-          className="hero-identity-meta"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration, delay: 0.25 + stagger * 3, ease: EASE }}
-        >
-          {today} • v1 — première version
         </motion.p>
       </div>
       <span className="hero-identity-glow" aria-hidden />

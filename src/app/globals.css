@@ -222,15 +222,6 @@ a:focus-visible {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
-.hero-identity-meta {
-  margin: 0.45rem 0 0;
-  font-size: clamp(0.78rem, 1.9vw, 0.95rem);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.55);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-}
-
 .hero-identity-glow {
   position: absolute;
   left: 50%;
@@ -3712,13 +3703,11 @@ a:focus-visible {
   }
   .hero-identity-name { font-size: clamp(1.75rem, 8.5vw, 2.2rem); }
   .hero-identity-role { font-size: clamp(0.78rem, 2.6vw, 0.95rem); letter-spacing: 0.14em; }
-  .hero-identity-meta { font-size: clamp(0.68rem, 2.1vw, 0.8rem); }
 }
 @media (max-width: 380px) {
   .hero-identity { top: 6%; }
   .hero-identity-name { font-size: 1.55rem; line-height: 1.08; }
   .hero-identity-role { font-size: 0.72rem; }
-  .hero-identity-meta { font-size: 0.62rem; }
 }
 
 /* ——— Anti-débordement horizontal global sur mobile ——— */
