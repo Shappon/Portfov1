@@ -61,7 +61,8 @@ export function Label3D({
     });
   });
 
-  const fontSize = isMobile ? 0.32 : 0.4;
+  /* Mobile : caméra reculée + fov élargi dans SceneCarousel → on agrandit légèrement le label pour compenser. */
+  const fontSize = isMobile ? 0.38 : 0.4;
 
   return (
     <a.group

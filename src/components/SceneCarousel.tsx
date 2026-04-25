@@ -23,13 +23,18 @@ interface SectionItem {
 
 const SPRING_CONFIG = { mass: 0.8, tension: 120, friction: 14 };
 const DESKTOP = { leftX: -2.6, rightX: 2.6 };
-const MOBILE = { leftX: -1.8, rightX: 1.8 };
+/* Coords mobile resserrées pour rester visibles en portrait étroit (aspect ~0.5). */
+const MOBILE = { leftX: -1.35, rightX: 1.35 };
 const DOCK_DESKTOP = { x: -3.9, y: -0.1, z: 0.15 };
-const DOCK_MOBILE = { x: -2.1, y: -0.1, z: 0.15 };
+/* Dock mobile : forme 3D parquée en haut de l'écran (le panneau occupe toute la largeur). */
+const DOCK_MOBILE = { x: 0, y: 2.1, z: 0.15 };
 const SHAPE_Y = 0;
 const SCALE_CENTER = 1.35;
 const SCALE_SIDE = 1.12;
+const SCALE_CENTER_MOBILE = 1.15;
+const SCALE_SIDE_MOBILE = 0.9;
 const SCALE_DOCK = 1;
+const SCALE_DOCK_MOBILE = 0.7;
 
 type Slot = "left" | "center" | "right" | "hidden";
 function getSlot(index: number, activeIndex: number, total: number): Slot {
@@ -48,13 +53,25 @@ function getLabelForSection(sectionId: string): string {
   return sectionId.toUpperCase();
 }
 
-function CameraRig({ mode }: { mode: Mode }) {
+function CameraRig({ mode, isMobile }: { mode: Mode; isMobile: boolean }) {
   const { camera } = useThree();
-  const targetZ = mode === "detail" ? 6.2 : 7;
+  /* Mobile : caméra reculée + fov élargi pour que les 3 formes tiennent en portrait. */
+  const targetZ = isMobile
+    ? mode === "detail"
+      ? 8.5
+      : 9
+    : mode === "detail"
+    ? 6.2
+    : 7;
+  const targetFov = isMobile ? 55 : 45;
   useFrame(() => {
     /* R3F : la caméra Three.js se met à jour par mutation dans useFrame (usage documenté) */
     // eslint-disable-next-line react-hooks/immutability
-    camera.position.z += (targetZ - camera.position.z) * 0.05;
+    camera.position.z += (targetZ - camera.position.z) * 0.08;
+    const perspective = camera as unknown as { fov?: number };
+    if (typeof perspective.fov === "number") {
+      perspective.fov += (targetFov - perspective.fov) * 0.1;
+    }
     camera.updateProjectionMatrix();
   });
   return null;
@@ -91,7 +108,7 @@ export function SceneCarousel({
 
   return (
     <>
-      <CameraRig mode={mode} />
+      <CameraRig mode={mode} isMobile={isMobile} />
       <ambientLight intensity={0.6} />
       <directionalLight
         position={[3, 4, 5]}
@@ -161,6 +178,9 @@ function CarouselMesh({
   const coords = isMobile ? MOBILE : DESKTOP;
   const dock = isMobile ? DOCK_MOBILE : DOCK_DESKTOP;
   const leftOffIndex = (activeIndex + totalSections - 1) % totalSections;
+  const scaleCenter = isMobile ? SCALE_CENTER_MOBILE : SCALE_CENTER;
+  const scaleSide = isMobile ? SCALE_SIDE_MOBILE : SCALE_SIDE;
+  const scaleDock = isMobile ? SCALE_DOCK_MOBILE : SCALE_DOCK;
   let targetX: number, targetY: number, targetZ: number, targetScale: number, targetOpacity: number;
   if (slot === "hidden") {
     targetX = 10;
@@ -178,13 +198,13 @@ function CarouselMesh({
     targetX = dock.x;
     targetY = dock.y;
     targetZ = dock.z;
-    targetScale = SCALE_DOCK;
+    targetScale = scaleDock;
     targetOpacity = 1;
   } else {
     targetX = slot === "left" ? coords.leftX : slot === "right" ? coords.rightX : 0;
     targetY = SHAPE_Y;
     targetZ = slot === "center" ? 0 : -0.2;
-    targetScale = (slot === "center" ? SCALE_CENTER : SCALE_SIDE) + (hovered ? 0.03 : 0);
+    targetScale = (slot === "center" ? scaleCenter : scaleSide) + (hovered ? 0.03 : 0);
     targetOpacity = 1;
   }
 

@@ -1076,10 +1076,14 @@ function ProjectsExplorer({
       </div>
 
       <section className="projects-panel-grid mt-2 mb-4 flex-shrink-0">
-        <div className="row g-3">
+        <div className="row g-3 g-md-3 mx-0">
           {filtered.map((project, i) => (
-            <div key={project.id} className="col-12 col-md-6 col-lg-4">
+            <div
+              key={project.id}
+              className="col-12 col-sm-6 col-lg-4 projects-panel-grid-cell"
+            >
               <animated.div
+                className="h-100"
                 style={{
                   opacity: cardSprings[i].opacity,
                   transform: cardSprings[i].y.to((y) => `translateY(${y}px)`),

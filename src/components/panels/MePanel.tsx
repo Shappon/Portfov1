@@ -85,7 +85,13 @@ export function MePanel() {
         <div className="me-panel-hero-inner">
           <h1 className="me-panel-hero-name">{HERO.name}</h1>
           <p className="me-panel-hero-role">{HERO.role}</p>
-          <div className="me-panel-hero-photo-wrap">
+        </div>
+      </header>
+
+      <main className="me-panel-main" aria-label="Présentation">
+        {/* Bloc photo + boutons : column desktop, row mobile (photo gauche / boutons droite) */}
+        <section className="me-panel-actions" aria-label="Photo et thèmes">
+          <div className="me-panel-actions-photo-wrap">
             <Image
               src="/me.png"
               alt="Shuan Huynh"
@@ -93,32 +99,30 @@ export function MePanel() {
               width={260}
               height={380}
               priority
-              sizes="(max-width: 768px) 200px, 260px"
+              sizes="(max-width: 576px) 140px, (max-width: 768px) 200px, 260px"
             />
           </div>
-        </div>
-      </header>
 
-      <main className="me-panel-main" aria-label="Présentation">
-        <div className="me-panel-nav-blocs" role="tablist" aria-label="Thèmes de présentation">
-          {BLOCS.map((bloc) => {
-            const isActive = activeId === bloc.id;
-            return (
-              <button
-                key={bloc.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                aria-controls="me-panel-detail-zone"
-                id={`me-panel-tab-${bloc.id}`}
-                className={`me-panel-nav-card ${isActive ? "me-panel-nav-card--active" : ""}`}
-                onClick={() => selectBloc(bloc.id)}
-              >
-                <span className="me-panel-nav-card-title">{bloc.title}</span>
-              </button>
-            );
-          })}
-        </div>
+          <div className="me-panel-nav-blocs" role="tablist" aria-label="Thèmes de présentation">
+            {BLOCS.map((bloc) => {
+              const isActive = activeId === bloc.id;
+              return (
+                <button
+                  key={bloc.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls="me-panel-detail-zone"
+                  id={`me-panel-tab-${bloc.id}`}
+                  className={`me-panel-nav-card ${isActive ? "me-panel-nav-card--active" : ""}`}
+                  onClick={() => selectBloc(bloc.id)}
+                >
+                  <span className="me-panel-nav-card-title">{bloc.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
         <section
           id="me-panel-detail-zone"

@@ -6,6 +6,7 @@ import { Canvas } from "@react-three/fiber";
 import { SceneCarousel } from "./SceneCarousel";
 import { DetailPanel } from "./DetailPanel";
 import { HeroIdentity } from "./HeroIdentity";
+import { SceneMobileNav } from "./SceneMobileNav";
 
 export interface SectionItem {
   id: string;
@@ -101,10 +102,23 @@ export default function Home3D() {
 
       <div className="home3d-overlay">
         {viewMode === "carousel" && (
-          <HeroIdentity
-            isHighlight={active?.id === "me"}
-            reduceMotion={reduceMotion}
-          />
+          <>
+            <HeroIdentity
+              isHighlight={active?.id === "me"}
+              reduceMotion={reduceMotion}
+            />
+            {isNarrowViewport && (
+              <SceneMobileNav
+                activeIndex={activeIndex}
+                total={totalSections}
+                activeTitle={active.title}
+                onPrev={goLeft}
+                onNext={goRight}
+                onSelect={setActiveIndex}
+                onEnter={enter}
+              />
+            )}
+          </>
         )}
         {viewMode === "detail" && (
           <>

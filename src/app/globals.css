@@ -386,7 +386,9 @@ a:focus-visible {
 .projects-panel-explorer--scrollable {
   flex: 1 1 0;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
@@ -501,7 +503,12 @@ a:focus-visible {
 }
 @media (max-width: 768px) {
   .me-panel-hero {
-    padding: 1.75rem 1rem 0.85rem;
+    padding: 1.25rem 1rem 0.75rem;
+  }
+}
+@media (max-width: 576px) {
+  .me-panel-hero {
+    padding: 1rem 0.85rem 0.6rem;
   }
 }
 @media (max-height: 700px) {
@@ -534,13 +541,27 @@ a:focus-visible {
   .me-panel-hero-name { font-size: 1.2rem; }
   .me-panel-hero-role { font-size: 1rem; margin-bottom: 0.25rem; }
 }
-.me-panel-hero-photo-wrap {
-  margin-top: clamp(0.6rem, 1.5vh, 1rem);
-  padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.75rem, 1.5vw, 1.25rem);
+/* ——— Bloc photo + boutons ———
+   Desktop : column centrée (photo au-dessus, boutons en grille 4 colonnes).
+   Mobile (≤576px) : row, photo à gauche, boutons empilés à droite. */
+.me-panel-actions {
+  width: 100%;
+  max-width: 56rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.75rem, 2vh, 1.25rem);
+  padding: clamp(0.5rem, 1.5vh, 1rem) 0;
+}
+.me-panel-actions-photo-wrap {
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
+  padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.75rem, 1.5vw, 1.25rem);
 }
 .me-panel-hero-photo {
+  display: block;
   width: clamp(180px, 24vw, 260px);
   height: clamp(260px, 40vh, 380px);
   object-fit: cover;
@@ -555,12 +576,36 @@ a:focus-visible {
 }
 @media (max-height: 700px) {
   .me-panel-hero-role { font-size: 1.1rem; }
-  .me-panel-hero-photo-wrap { margin-top: 0.35rem; padding: 0.4rem; }
+  .me-panel-actions-photo-wrap { padding: 0.4rem; }
   .me-panel-hero-photo { width: 160px; height: 240px; }
 }
+/* Mobile : photo à gauche + boutons empilés à droite */
 @media (max-width: 576px) {
-  .me-panel-hero-photo-wrap { padding: 0.75rem; }
-  .me-panel-hero-photo { width: min(100%, 200px); height: 280px; }
+  .me-panel-actions {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.5rem 0.25rem;
+  }
+  .me-panel-actions-photo-wrap {
+    padding: 0;
+    flex: 0 0 auto;
+    align-items: stretch;
+  }
+  .me-panel-hero-photo {
+    width: clamp(120px, 38vw, 150px);
+    height: 100%;
+    min-height: 180px;
+    max-height: 220px;
+    border-width: 2px;
+  }
+}
+@media (max-width: 360px) {
+  .me-panel-hero-photo {
+    width: 110px;
+    min-height: 160px;
+    max-height: 190px;
+  }
 }
 
 /* 2 — LIGNE DE BOUTONS (responsive) */
@@ -748,15 +793,22 @@ a:focus-visible {
   flex-shrink: 0;
   padding: 0.5rem 0;
 }
-@media (max-width: 768px) {
+@media (max-width: 768px) and (min-width: 577px) {
   .me-panel-nav-blocs {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.3rem 0.4rem;
   }
 }
-@media (max-width: 420px) {
+/* Mobile : boutons empilés verticalement à droite de la photo */
+@media (max-width: 576px) {
   .me-panel-nav-blocs {
     grid-template-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 0.4rem;
+    padding: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-self: stretch;
   }
 }
 .me-panel-nav-card {
@@ -772,6 +824,15 @@ a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+/* Mobile : cartes plus aérées (alignées sur la hauteur de la photo) */
+@media (max-width: 576px) {
+  .me-panel-nav-card {
+    padding: 0.55rem 0.6rem;
+    min-height: 44px;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.04);
+  }
 }
 .me-panel-nav-card:hover {
   border-color: rgba(255, 255, 255, 0.12);
@@ -1336,10 +1397,12 @@ a:focus-visible {
 .projects-panel-root {
   padding: 1.5rem 1.5rem 2rem;
   min-height: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 @media (max-width: 576px) {
   .projects-panel-root {
-    padding: 1rem 1rem 1.5rem;
+    padding: 0.85rem 0.85rem 1.25rem;
   }
 }
 
@@ -1501,6 +1564,8 @@ a:focus-visible {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.2s ease, background 0.2s ease;
 }
 .projects-panel-card:hover {
@@ -1508,6 +1573,32 @@ a:focus-visible {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   border-color: rgba(255, 255, 255, 0.12) !important;
   background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Grille projets : empêche tout débordement horizontal (gutter Bootstrap, chips longs, etc.) */
+.projects-panel-grid {
+  width: 100%;
+  min-width: 0;
+}
+.projects-panel-grid .row {
+  --bs-gutter-x: 1rem;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+.projects-panel-grid-cell {
+  min-width: 0;
+  display: flex;
+}
+.projects-panel-grid-cell > div {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 576px) {
+  .projects-panel-grid .row {
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 0.75rem;
+  }
 }
 .projects-panel-card-focus {
   border-color: rgba(255, 255, 255, 0.18) !important;
@@ -1518,6 +1609,13 @@ a:focus-visible {
   font-size: 1.05rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.98);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  line-height: 1.3;
+}
+@media (max-width: 576px) {
+  .projects-panel-card-title { font-size: 0.98rem; }
 }
 .projects-panel-card-category {
   font-weight: 500;
@@ -1551,6 +1649,8 @@ a:focus-visible {
 .projects-panel-card-desc {
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .detail-panel-projects-active .projects-panel-badge-sm {
   background: rgba(255, 255, 255, 0.08);
@@ -1559,6 +1659,11 @@ a:focus-visible {
   padding: 0.25rem 0.55rem;
   font-size: 0.72rem;
   font-weight: 500;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.25;
 }
 /* Légère bordure colorée sur la carte au survol selon catégorie */
 .projects-panel-card--saas:hover { border-color: rgba(59, 130, 246, 0.35) !important; }
@@ -3283,4 +3388,580 @@ a:focus-visible {
   color: rgba(255, 255, 255, 0.76);
   line-height: 1.52;
   margin: 0;
+}
+
+/* ============================================================
+   ============ OPTIMISATIONS MOBILE CENTRALISÉES =============
+   ============================================================
+   Stratégie de breakpoints :
+   - desktop  : ≥ 1025px  (aucune règle ci-dessous ne s'applique)
+   - tablette :  ≤ 1024px (ajustements légers)
+   - mobile   :  ≤ 768px  (priorité tactile, panneau pleine largeur)
+   - petit    :  ≤ 576px  (typographies réduites, paddings compacts)
+   - minuscule:  ≤ 380px  (réductions supplémentaires)
+   NE TOUCHE PAS au desktop.
+   ============================================================ */
+
+/* ——— Navigation mobile entre formes 3D (SceneMobileNav) ——— */
+.scene-mobile-nav {
+  /* Affiché uniquement en mobile/tablette portrait ; caché sur desktop */
+  display: none;
+}
+@media (max-width: 768px) {
+  .scene-mobile-nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem max(0.9rem, env(safe-area-inset-left, 0px))
+      max(0.85rem, env(safe-area-inset-bottom, 0px))
+      max(0.9rem, env(safe-area-inset-right, 0px));
+    background: linear-gradient(
+      180deg,
+      rgba(10, 10, 10, 0) 0%,
+      rgba(10, 10, 10, 0.55) 45%,
+      rgba(10, 10, 10, 0.82) 100%
+    );
+    pointer-events: auto;
+    color: rgba(255, 255, 255, 0.92);
+  }
+}
+
+.scene-mobile-nav-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  text-align: center;
+  line-height: 1.15;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+.scene-mobile-nav-counter {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+.scene-mobile-nav-counter-sep {
+  margin: 0 0.25em;
+  opacity: 0.55;
+}
+.scene-mobile-nav-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.98);
+}
+
+.scene-mobile-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scene-mobile-nav-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+.scene-mobile-nav-btn:active {
+  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.14);
+}
+.scene-mobile-nav-btn--side {
+  width: 44px;
+}
+.scene-mobile-nav-btn--primary {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.55rem 1.35rem;
+  background: rgba(99, 102, 241, 0.28);
+  border-color: rgba(99, 102, 241, 0.55);
+  color: #fff;
+  box-shadow: 0 2px 16px rgba(99, 102, 241, 0.25);
+}
+.scene-mobile-nav-btn--primary:active {
+  background: rgba(99, 102, 241, 0.42);
+}
+
+.scene-mobile-nav-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.25rem;
+}
+.scene-mobile-nav-dot {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.scene-mobile-nav-dot::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.scene-mobile-nav-dot--active::after {
+  background: linear-gradient(135deg, rgba(167, 169, 255, 1), rgba(99, 102, 241, 1));
+  transform: scale(1.35);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.55);
+}
+
+/* Laisse la place à la nav mobile en bas : on remonte légèrement le hero identity */
+@media (max-width: 768px) {
+  .hero-identity {
+    top: 9%;
+  }
+}
+@media (max-width: 576px) {
+  .hero-identity {
+    top: 7%;
+    padding: 0 0.6rem;
+  }
+  .hero-identity-name { font-size: clamp(1.75rem, 8.5vw, 2.2rem); }
+  .hero-identity-role { font-size: clamp(0.78rem, 2.6vw, 0.95rem); letter-spacing: 0.14em; }
+  .hero-identity-meta { font-size: clamp(0.68rem, 2.1vw, 0.8rem); }
+}
+@media (max-width: 380px) {
+  .hero-identity { top: 6%; }
+  .hero-identity-name { font-size: 1.55rem; line-height: 1.08; }
+  .hero-identity-role { font-size: 0.72rem; }
+  .hero-identity-meta { font-size: 0.62rem; }
+}
+
+/* ——— Anti-débordement horizontal global sur mobile ——— */
+@media (max-width: 768px) {
+  .detail-panel-wrap,
+  .projects-panel-root,
+  .me-panel-root,
+  .ai-lab-root {
+    overflow-x: hidden;
+  }
+  .project-case-study,
+  .me-panel-main,
+  .ai-roadmap-detail-panel {
+    overflow-x: hidden;
+  }
+}
+
+/* ——— DetailPanel : topbar plus compacte et accessible tactile ——— */
+@media (max-width: 576px) {
+  .detail-panel-fullscreen-topbar {
+    padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
+    padding-bottom: 0.4rem;
+    padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+  }
+  .detail-panel-fullscreen-topbar h2.h6 {
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+  .detail-panel-close-btn {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.7rem;
+  }
+}
+
+/* ——— MePanel : réductions ciblées sur petits écrans ——— */
+@media (max-width: 576px) {
+  .me-panel-hero {
+    padding: 1.1rem 0.85rem 0.6rem;
+  }
+  .me-panel-hero-name { font-size: clamp(1.1rem, 5vw, 1.45rem); }
+  .me-panel-hero-role {
+    font-size: clamp(0.82rem, 3.3vw, 0.98rem);
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+  }
+  .me-panel-hero-photo-wrap { margin-top: 0.5rem; padding: 0.4rem; }
+  .me-panel-hero-photo {
+    width: min(42vw, 150px);
+    height: min(60vw, 210px);
+    border-width: 2px;
+    border-radius: 0.45rem;
+  }
+  .me-panel-main { padding: 0.65rem 0.6rem; }
+  .me-panel-nav-blocs { padding: 0.35rem 0; gap: 0.3rem; }
+  .me-panel-nav-card {
+    padding: 0.55rem 0.5rem;
+    min-height: 44px;
+  }
+  .me-panel-nav-card-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+  .me-panel-detail-zone {
+    min-height: clamp(9rem, 28vh, 16rem);
+    padding: 0.75rem 0 0.85rem;
+    margin-top: 0.6rem;
+  }
+  .me-panel-detail-content { padding: 0 0.25rem; }
+  .me-panel-detail-content p {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin-bottom: 0.7rem;
+  }
+  .me-panel-detail-steps li {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin-bottom: 0.45rem;
+  }
+}
+@media (max-width: 380px) {
+  .me-panel-hero-name { font-size: 1.05rem; }
+  .me-panel-hero-role { font-size: 0.78rem; }
+  .me-panel-hero-photo {
+    width: min(44vw, 130px);
+    height: min(62vw, 180px);
+  }
+  .me-panel-nav-card-title { font-size: 0.62rem; }
+}
+
+/* ——— ProjectsPanel (liste) ——— */
+@media (max-width: 576px) {
+  .projects-panel-root {
+    padding: 0.85rem 0.75rem 1.25rem;
+  }
+  .projects-panel-title {
+    font-size: clamp(1.1rem, 5vw, 1.35rem);
+    line-height: 1.2;
+  }
+  .projects-panel-header { margin-bottom: 1rem !important; }
+  .projects-panel-filters { margin-bottom: 1rem !important; }
+  .projects-panel-filters .btn-pill,
+  .projects-panel-filters-sub .btn-pill {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.78rem;
+    min-height: 36px;
+  }
+  .projects-panel-card {
+    padding: 0.75rem !important;
+    border-radius: 0.7rem !important;
+  }
+  .projects-panel-card-title {
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+  .projects-panel-card-desc {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+  .projects-panel-cat-badge {
+    font-size: 0.66rem;
+    padding: 0.15rem 0.5rem;
+  }
+  .detail-panel-projects-active .projects-panel-badge-sm {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .projects-panel-grid .row.g-3 {
+    --bs-gutter-x: 0.65rem;
+    --bs-gutter-y: 0.65rem;
+  }
+}
+
+/* ——— ProjectCaseStudy : compact mobile ——— */
+@media (max-width: 768px) {
+  .project-case-study-hero {
+    padding: 1rem 0.9rem;
+    margin-bottom: 1.15rem;
+    border-radius: 0.85rem;
+  }
+  .project-case-study-hero-layout {
+    gap: 0.85rem;
+  }
+  .project-case-study-hero-demo-zone {
+    flex: 1 1 100%;
+    min-height: 150px;
+  }
+  .project-case-study-video-demo-btn {
+    min-height: 150px;
+    padding: 1rem;
+  }
+  .project-case-study-video-demo-icon {
+    width: 2.6rem;
+    height: 2.6rem;
+    font-size: 1.1rem;
+  }
+  .project-case-study-video-demo-label {
+    font-size: 0.95rem;
+  }
+  .project-case-study-hero-inner {
+    flex: 1 1 100%;
+  }
+  .project-case-study-block {
+    margin-bottom: 1.15rem;
+  }
+  .project-case-study-card,
+  .project-case-study-challenge-card,
+  .project-case-study-arch-card {
+    padding: 0.85rem 0.95rem;
+    border-radius: 0.65rem;
+  }
+  .project-case-study-feature-card {
+    padding: 0.65rem 0.85rem;
+  }
+  .project-case-study-arch-grid {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+}
+@media (max-width: 576px) {
+  .project-case-study {
+    padding: 0 0 1.5rem;
+  }
+  .project-case-study-nav { margin-bottom: 0.6rem; }
+  .project-case-study-back { font-size: 0.82rem; }
+  .project-case-study-hero-title {
+    font-size: clamp(1.15rem, 5vw, 1.45rem);
+    line-height: 1.2;
+    margin-bottom: 0.45rem;
+  }
+  .project-case-study-hero-desc {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+  .project-case-study-hero-type {
+    font-size: 0.7rem;
+    margin-bottom: 0.35rem;
+  }
+  .project-case-study-block-title {
+    font-size: 0.65rem;
+    margin-bottom: 0.45rem;
+  }
+  .project-case-study-card-text,
+  .project-case-study-feature-text,
+  .project-case-study-decision-item {
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .project-case-study-stack-chip,
+  .project-case-study-stack-badge,
+  .project-case-study-future-chip {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+  }
+  .project-case-study-stack-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .project-case-study-stack-label {
+    min-width: 0;
+    font-size: 0.68rem;
+  }
+  .project-case-study-btn {
+    font-size: 0.82rem;
+    padding: 0.45rem 1rem;
+    min-height: 40px;
+  }
+  .project-case-study-challenge-num {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.68rem;
+  }
+}
+
+/* ——— AIPanel (roadmap) ——— */
+@media (max-width: 576px) {
+  .ai-lab-hero { padding: 1.15rem 0.9rem 1rem; }
+  .ai-lab-hero-title {
+    font-size: clamp(1.3rem, 5.5vw, 1.65rem);
+    line-height: 1.15;
+  }
+  .ai-lab-hero-subtitle {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+  .ai-lab-hero-badge {
+    font-size: 0.65rem;
+    margin-bottom: 0.75rem;
+    padding: 0.2rem 0.5rem;
+  }
+  /* Roadmap mobile : chip-bar compact + scroll-snap, sans gros cercles */
+  .ai-roadmap-timeline--horizontal {
+    padding: 0.6rem 0.5rem 0.7rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .ai-roadmap-timeline--horizontal::-webkit-scrollbar {
+    display: none;
+  }
+  .ai-roadmap-track--horizontal {
+    gap: 0.4rem;
+    align-items: center;
+    padding-right: 0.5rem;
+  }
+  /* Cercle/halo/anneau désactivés en mobile : on n'affiche que la pill */
+  .ai-roadmap-node-dot-wrap,
+  .ai-roadmap-node-halo,
+  .ai-roadmap-node-ring,
+  .ai-roadmap-node-dot {
+    display: none !important;
+  }
+  .ai-roadmap-line-wrap--measured {
+    display: none;
+  }
+  .ai-roadmap-node--horizontal {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 36px;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.78);
+    scroll-snap-align: center;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ai-roadmap-node--horizontal:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .ai-roadmap-node--horizontal.ai-roadmap-node--past {
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.18);
+  }
+  .ai-roadmap-node--horizontal.ai-roadmap-node--active {
+    color: #fff;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(139, 92, 246, 0.85));
+    border-color: rgba(167, 169, 255, 0.55);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  }
+  .ai-roadmap-node-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .ai-roadmap-node--horizontal.ai-roadmap-node--active .ai-roadmap-node-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .ai-roadmap-detail-panel {
+    padding: 0.95rem 0.85rem 1.25rem;
+  }
+  .ai-roadmap-detail-header { margin-bottom: 0.9rem; }
+  .ai-roadmap-detail-badge { font-size: 0.64rem; }
+  .ai-roadmap-detail-title {
+    font-size: clamp(1rem, 4.8vw, 1.2rem);
+    line-height: 1.22;
+  }
+  .ai-roadmap-intro,
+  .ai-roadmap-lead {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin-bottom: 0.95rem;
+  }
+  .ai-roadmap-card,
+  .ai-roadmap-block,
+  .ai-roadmap-projet,
+  .ai-roadmap-direction,
+  .ai-roadmap-outil,
+  .ai-roadmap-ressource {
+    padding: 0.8rem 0.9rem;
+    border-radius: 0.55rem;
+  }
+  .ai-roadmap-block-title,
+  .ai-roadmap-direction-title,
+  .ai-roadmap-projet-title {
+    font-size: 0.88rem;
+    margin-bottom: 0.3rem;
+  }
+  .ai-roadmap-block-badge,
+  .ai-roadmap-subtitle {
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+  }
+  .ai-roadmap-block-text,
+  .ai-roadmap-direction-text,
+  .ai-roadmap-projet-desc,
+  .ai-roadmap-body-text {
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+  .ai-roadmap-tag {
+    font-size: 0.66rem;
+    padding: 0.15rem 0.45rem;
+  }
+  .ai-roadmap-outil {
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+  }
+  .ai-roadmap-outil-name {
+    font-size: 0.84rem;
+    min-width: 0;
+    width: 100%;
+  }
+  .ai-roadmap-outil-desc {
+    font-size: 0.78rem;
+  }
+  .ai-roadmap-ressource-label { font-size: 0.84rem; }
+  .ai-roadmap-ressource-type { font-size: 0.62rem; }
+}
+@media (max-width: 380px) {
+  .ai-roadmap-node--horizontal { min-width: 3rem; }
+  .ai-roadmap-node-label { font-size: 0.6rem; }
+}
+
+/* ——— Renforcement tactile : rien d’obligatoire sur hover mobile ——— */
+@media (hover: none) and (pointer: coarse) {
+  .projects-panel-card:hover,
+  .me-panel-card:hover,
+  .me-panel-pillar:hover,
+  .ai-roadmap-block:hover,
+  .ai-roadmap-projet:hover,
+  .ai-roadmap-direction:hover,
+  .project-case-study-card:hover,
+  .project-case-study-arch-card:hover,
+  .project-case-study-stack-chip:hover,
+  .project-case-study-stack-badge:hover,
+  .project-case-study-future-chip:hover,
+  .ai-lab-card:hover,
+  .ai-lab-projet-card:hover,
+  .ai-lab-outil-card:hover,
+  .ai-lab-ressource-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  /* Zones d’appui : min 44×44 pour les boutons/pills */
+  .btn-pill,
+  .project-case-study-btn,
+  .projects-panel-demo-btn,
+  .detail-panel-projects-active .projects-panel-footer-btn {
+    min-height: 40px;
+  }
 }
