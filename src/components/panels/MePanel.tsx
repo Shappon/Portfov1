@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const HERO = {
   name: "Shuan HUYNH",
-  role: "Développeur full-stack autodidacte | SaaS, outils métiers & IA (pédagogie en bonus)",
+  roleLine1: "Développeur full-stack autodidacte",
+  roleLine2: "SaaS, outils métiers & IA — pédagogie en bonus",
 };
 
 const BLOCS = [
@@ -14,13 +15,13 @@ const BLOCS = [
     id: "qui",
     title: "Qui je suis",
     detail:
-      "Développeur full-stack autodidacte, j’apprends surtout en construisant et en expérimentant. J’aime transformer une idée floue en produit utilisable : cadrage, UX simple, architecture claire, itérations rapides.\n\nMon passé autour de l’enseignement m’a donné un vrai avantage : expliquer, vulgariser, écrire de la doc, et concevoir des outils qui mettent l’utilisateur en confiance. La pédagogie est un atout, pas une étiquette : mon cœur reste le dev et la création de produits.",
+      "Développeur full-stack autodidacte, j’apprends surtout en construisant et en expérimentant. J’aime transformer une idée floue en produit utilisable : cadrage, UX simple, architecture claire, itérations rapides.",
   },
   {
     id: "construis",
     title: "Ce que je construis",
     detail:
-      "Des apps web (SaaS), des outils métiers et des expérimentations IA. Je vise des produits qui vont à l’essentiel : interfaces propres, parcours fluides, performance, et robustesse.\n\nQuand le contexte s’y prête, j’applique aussi un prisme “apprentissage” (clarté, guidage, feedback). Mais je construis avant tout pour résoudre un problème réel, mesurable, et livrable.",
+      "Des apps web (SaaS), des outils métiers et des expérimentations IA. Je vise des produits qui vont à l’essentiel : interfaces propres, parcours fluides, performance, et robustesse. Quand le contexte s’y prête, j’y intègre aussi de la clarté, du guidage et du feedback côté usage, mais l’horizon reste chaque fois un problème concret, mesurable et livrable.",
   },
   {
     id: "methode",
@@ -37,7 +38,7 @@ const BLOCS = [
     id: "vision",
     title: "Ma vision",
     detail:
-      "Je veux un numérique qui aide sans intimider : des produits simples, fiables, et utiles en situation réelle.\n\nMon fil conducteur, c’est la clarté : dans l’interface (UX), dans le code (architecture), dans la communication (doc). L’IA m’intéresse surtout quand elle augmente l’utilisateur (assistants, relecture, extraction), en restant transparente sur ses limites.",
+      "J’ai surtout envie d’outils qui aident pour de vrai, sans surprendre ni surcharger : simples, fiables, utiles au quotidien. La clarté me semble le bon fil — dans l’interface, dans le code, dans ce qu’on documente — et l’IA, seulement là où elle sert vraiment (accompagner, relire, structurer), en restant honnête sur ce qu’elle ne sait pas.",
   },
 ] as const;
 
@@ -84,7 +85,14 @@ export function MePanel() {
       <header className="me-panel-hero">
         <div className="me-panel-hero-inner">
           <h1 className="me-panel-hero-name">{HERO.name}</h1>
-          <p className="me-panel-hero-role">{HERO.role}</p>
+          <p className="me-panel-hero-role">
+            <span className="me-panel-hero-role-line me-panel-hero-role-line--primary">
+              {HERO.roleLine1}
+            </span>
+            <span className="me-panel-hero-role-line me-panel-hero-role-line--secondary">
+              {HERO.roleLine2}
+            </span>
+          </p>
         </div>
       </header>
 

@@ -70,6 +70,8 @@ function CameraRig({ mode, isMobile }: { mode: Mode; isMobile: boolean }) {
     camera.position.z += (targetZ - camera.position.z) * 0.08;
     const perspective = camera as unknown as { fov?: number };
     if (typeof perspective.fov === "number") {
+      /* R3F : ajustement du fov en useFrame (documenté) */
+      // eslint-disable-next-line react-hooks/immutability
       perspective.fov += (targetFov - perspective.fov) * 0.1;
     }
     camera.updateProjectionMatrix();

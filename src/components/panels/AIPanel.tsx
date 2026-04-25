@@ -3,49 +3,31 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ——— Roadmap : 6 étapes de ma relation avec l'IA ———
+// ——— Roadmap : 3 volets (essentiel fusionné, idées, outils) ———
 
 const HERO = {
   title: "IA",
-  subtitle: "Récit et repères : comment j’aborde l’IA — utile en classe, pas seulement “tech”.",
+  subtitle: "Trois volets : l’essentiel, des idées, des ressources — le même contenu, sans en faire trop.",
 };
 
 const ROADMAP_STEPS = [
   {
-    id: "declic",
+    id: "essentiel",
     order: 1,
-    shortLabel: "Déclic",
-    label: "Mon déclic pour l’IA",
-  },
-  {
-    id: "comprendre",
-    order: 2,
-    shortLabel: "Comprendre",
-    label: "Ce que j’ai commencé à comprendre",
-  },
-  {
-    id: "fonctionnement",
-    order: 3,
-    shortLabel: "Fonctionnement",
-    label: "Ma découverte de son fonctionnement",
+    shortLabel: "L’essentiel",
+    label: "L’essentiel : déclic, repères, refonte du regard",
   },
   {
     id: "inspire",
-    order: 4,
-    shortLabel: "Projets",
-    label: "Ce que cela m’inspire",
+    order: 2,
+    shortLabel: "Idée",
+    label: "Idées et usages que je cible",
   },
   {
     id: "outils",
-    order: 5,
+    order: 3,
     shortLabel: "Outils",
-    label: "Outils et ressources qui m’aident",
-  },
-  {
-    id: "ensuite",
-    order: 6,
-    shortLabel: "Suite",
-    label: "Ce que je veux explorer ensuite",
+    label: "Outils & ressources",
   },
 ] as const;
 
@@ -53,80 +35,76 @@ export type RoadmapStepId = (typeof ROADMAP_STEPS)[number]["id"];
 
 // ——— Contenu par étape (existant + nouveau, à personnaliser) ———
 
-const STEP_DECLIC = {
-  intro:
-    "Au début, surtout du bruit : copilotes, “révolution”. Ce qui m’a retenu, c’est l’idée d’aider à formuler, structurer, débrouillarder — à condition de laisser la place au raisonnement (et de travailler la relecture).",
-  personal:
-    "Avec un pied dans le concret, je la vois comme un plus pour accompagner : indices, brouillons, reformulations. L’enjeu, en contexte pédagogique, c’est de savoir cadrer : ce que c’est, ce que ce n’est pas, quand c’est fiable (ou non).",
-};
-
-const STEP_COMPRENDRE = {
-  intro: "Idées stables pour en parler clairement (NSI, SNT) :",
-  points: [
-    {
-      title: "Modèles & APIs",
-      text: "Gros modèles accessibles par des interfaces : on envoie un texte, on reçoit des propositions — ce n’est pas de la connaissance, c’est de la génération statistique, avec des limites.",
-    },
-    {
-      title: "Prompts & contexte",
-      text: "Bien cadrer la consigne et le contexte, c’est le cœur du sujet. En classe, c’est l’équivalent de : savoir expliciter ce qu’on cherche (et vérifier).",
-    },
-    {
-      title: "Outils intégrés",
-      text: "Utile quand c’est scénarisé (travail, fiche) avec règles, traçabilité et relecture — pas en magie sans cadre.",
-    },
-    {
-      title: "Automatisation légère",
-      text: "Résumer, classer, trier : gagner du temps sur le répétitif pour s’intéresser au vrai travail — et se poser des questions d’éthique et d’évaluation.",
-    },
-  ],
-};
-
-const STEP_FONCTIONNEMENT = {
-  intro: "Briques simples pour expliquer sans se perdre :",
-  blocks: [
-    {
-      title: "Modèle",
-      text: "Il prédit une suite de texte plausible à partir d’un entraînement, pas un “savoir” sûr — d’où des erreurs possibles.",
-    },
-    {
-      title: "Contexte & prompt",
-      text: "Le message qu’on envoie cadrer la tâche : plus c’est explicite, plus on a de chances d’avoir un résultat exploitable (comme une bonne consigne).",
-    },
-    {
-      title: "Données & RAG",
-      text: "Fournir des documents pour s’en inspirer (RAG) : piste riche en classe pour citer, vérifier, parler d’info et de sources.",
-    },
-    {
-      title: "Limites",
-      text: "Hallucinations, biais, coût, confidentialité : c’est l’endroit idéal pour parler littératie numérique, pas de fantasmes sur l’infaillibilité.",
-    },
-  ],
-};
+const STEP_ESSENTIEL = {
+  declic:
+    "Hors le bruit ambiant, ce que je retiens, c’est l’appui concret : formuler, structurer, amorcer. Je l’utilise en connaissance de cause — pas de vérité toute faite, relecture et recoupement nécessaires.",
+  comprendre: {
+    intro: "Quelques repères :",
+    points: [
+      {
+        title: "Génération, pas preuve",
+        text: "Des propositions plausibles, une statistique derrière, pas un catalogue de faits. Erreurs et biais possibles.",
+      },
+      {
+        title: "Entrée = sortie",
+        text: "Le cadrage du message fixe beaucoup le résultat. Vague en entrée, aléa en sortie.",
+      },
+      {
+        title: "Où ça tient",
+        text: "Le plus net dans un flux cadré : règles, versionnement, relecture. Moins intéressant en boîte noire.",
+      },
+    ],
+  },
+  fonctionnement: {
+    intro: "Mécanique en bref :",
+    blocks: [
+      {
+        title: "Modèle",
+        text: "Suite de tokens probable ; plausible n’implique pas exact.",
+      },
+      {
+        title: "Prompt",
+        text: "Définit l’intention. Peu de marge quand c’est flou.",
+      },
+      {
+        title: "Documents",
+        text: "Fichiers en contexte (souvent “RAG”) : mieux cadrer, citer, moins d’invention libre. Pas une garantie d’exactitude.",
+      },
+      {
+        title: "Limites",
+        text: "Hallucination, biais, coût, données : à traiter comme tels, pas comme une promesse de neutralité parfaite.",
+      },
+    ],
+  },
+} as const;
 
 const PROJETS_IDEES = [
   {
     id: "1",
     title: "Aide en contexte",
-    description: "Dans un espace de travail, proposer des indices et reformulations calés sur le niveau — aider à comprendre, pas rendre l’exercice tout fait.",
+    description:
+      "Dans l’espace de travail : indices et reformulations au niveau demandé. Objectif : clarifier, pas remplir à la place.",
     tags: ["RAG", "API LLM", "UX"],
   },
   {
     id: "2",
     title: "Synthèses & restitutions",
-    description: "A partir d’info structurée, des plans ou brouillons avec contraintes (zones à compléter, relecture obligatoire) pour garder l’effort d’écriture.",
+    description:
+      "À partir de contenu structuré, plans et brouillons sous contrainte (champs vides, relecture) pour conserver l’effort d’écriture.",
     tags: ["LLM", "Templates", "Export"],
   },
   {
     id: "3",
     title: "Tri de ressources",
-    description: "Classer ou taguer documents et fiches pour aider l’élève (ou la classe) à s’y retrouver sans noyer sous le contenu.",
+    description:
+      "Classement et étiquetage de documents : retrouver l’utile sans saturer. Pas de génération inutile.",
     tags: ["NLP", "Embeddings", "Pipeline"],
   },
   {
     id: "4",
-    title: "Assistant “mémoire de tâche”",
-    description: "Se souvenir de l’enoncé, des règles, du niveau, pour rappeler la méthode et inciter à relire le raisonnement plutôt qu’à tricher.",
+    title: "Mémoire de tâche",
+    description:
+      "Rappel d’énoncé, de règles, de niveau. Orienté méthode et relecture, pas contournement.",
     tags: ["Conversation", "Mémoire", "RAG"],
   },
 ];
@@ -148,17 +126,6 @@ const RESSOURCES = [
   { label: "Prompt Engineering Guide", url: "https://www.promptingguide.ai", type: "Ressource" },
 ];
 
-const STEP_ENSUITE = {
-  intro: "Pistes (enseignement + pratique) :",
-  directions: [
-    { title: "Agents raisonnables", text: "Chaînes d’étapes vraiment utiles, pas de démos creuses — et savoir les raconter simplement." },
-    { title: "RAG ancré", text: "Réponses appuyées sur un corpus choisi : info, vérification, biais, travail sur la source (NSI / SNT)." },
-    { title: "Automatisation ciblée", text: "Gagner du temps sur l’administratif sans déléguer ce qui doit rester un travail d’écriture ou d’évaluation humaine." },
-    { title: "IA dans le parcours", text: "Cadrer consigne, usage et attentes — pas coller l’IA à côté du cours par défaut." },
-    { title: "UX légère", text: "Soutenir sans encombrer l’écran, surtout pour un public moins sûr de soi en numérique." },
-  ],
-};
-
 function useReducedMotion(): boolean {
   return useMemo(() => {
     if (typeof window === "undefined") return false;
@@ -168,44 +135,37 @@ function useReducedMotion(): boolean {
 
 // ——— Composants de contenu par étape ———
 
-function StepDeclic() {
+function StepEssentiel() {
+  const s = STEP_ESSENTIEL;
   return (
     <div className="ai-roadmap-detail">
-      <p className="ai-roadmap-lead">{STEP_DECLIC.intro}</p>
-      <div className="ai-roadmap-card ai-roadmap-card--highlight">
-        <p className="ai-roadmap-body-text">{STEP_DECLIC.personal}</p>
+      <div className="ai-roadmap-essentiel-block">
+        <p className="ai-roadmap-essentiel-kicker">Déclic</p>
+        <p className="ai-roadmap-lead">{s.declic}</p>
       </div>
-    </div>
-  );
-}
-
-function StepComprendre() {
-  return (
-    <div className="ai-roadmap-detail">
-      <p className="ai-roadmap-intro">{STEP_COMPRENDRE.intro}</p>
-      <div className="ai-roadmap-blocks">
-        {STEP_COMPRENDRE.points.map((p) => (
-          <div key={p.title} className="ai-roadmap-block">
-            <h4 className="ai-roadmap-block-title">{p.title}</h4>
-            <p className="ai-roadmap-block-text">{p.text}</p>
-          </div>
-        ))}
+      <div className="ai-roadmap-essentiel-block">
+        <p className="ai-roadmap-essentiel-kicker">Repères</p>
+        <p className="ai-roadmap-intro">{s.comprendre.intro}</p>
+        <div className="ai-roadmap-blocks">
+          {s.comprendre.points.map((p) => (
+            <div key={p.title} className="ai-roadmap-block">
+              <h4 className="ai-roadmap-block-title">{p.title}</h4>
+              <p className="ai-roadmap-block-text">{p.text}</p>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-}
-
-function StepFonctionnement() {
-  return (
-    <div className="ai-roadmap-detail">
-      <p className="ai-roadmap-intro">{STEP_FONCTIONNEMENT.intro}</p>
-      <div className="ai-roadmap-blocks ai-roadmap-blocks--numbered">
-        {STEP_FONCTIONNEMENT.blocks.map((b) => (
-          <div key={b.title} className="ai-roadmap-block">
-            <span className="ai-roadmap-block-badge">{b.title}</span>
-            <p className="ai-roadmap-block-text">{b.text}</p>
-          </div>
-        ))}
+      <div className="ai-roadmap-essentiel-block">
+        <p className="ai-roadmap-essentiel-kicker">Mécanique</p>
+        <p className="ai-roadmap-intro">{s.fonctionnement.intro}</p>
+        <div className="ai-roadmap-blocks ai-roadmap-blocks--numbered">
+          {s.fonctionnement.blocks.map((b) => (
+            <div key={b.title} className="ai-roadmap-block">
+              <span className="ai-roadmap-block-badge">{b.title}</span>
+              <p className="ai-roadmap-block-text">{b.text}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -214,9 +174,6 @@ function StepFonctionnement() {
 function StepInspire() {
   return (
     <div className="ai-roadmap-detail">
-      <p className="ai-roadmap-intro">
-        Idées où l’IA sert l’accompagnement, pas le remplacement — compréhension, brouillons, remise en forme, avec relecture humaine.
-      </p>
       <div className="ai-roadmap-projets">
         {PROJETS_IDEES.map((projet) => (
           <div key={projet.id} className="ai-roadmap-projet">
@@ -237,9 +194,6 @@ function StepInspire() {
 function StepOutils() {
   return (
     <div className="ai-roadmap-detail">
-      <p className="ai-roadmap-intro">
-        Ressources pour m’y retrouver et, si besoin, pour préparer une démonstration claire en salle.
-      </p>
       <div className="ai-roadmap-step-five-grid">
         <div className="ai-roadmap-outils-section">
           <h4 className="ai-roadmap-subtitle">Outils</h4>
@@ -269,38 +223,16 @@ function StepOutils() {
   );
 }
 
-function StepEnsuite() {
-  return (
-    <div className="ai-roadmap-detail">
-      <p className="ai-roadmap-intro">{STEP_ENSUITE.intro}</p>
-      <div className="ai-roadmap-directions">
-        {STEP_ENSUITE.directions.map((d) => (
-          <div key={d.title} className="ai-roadmap-direction">
-            <h4 className="ai-roadmap-direction-title">{d.title}</h4>
-            <p className="ai-roadmap-direction-text">{d.text}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function StepDetailContent({ stepId }: { stepId: RoadmapStepId }) {
   switch (stepId) {
-    case "declic":
-      return <StepDeclic />;
-    case "comprendre":
-      return <StepComprendre />;
-    case "fonctionnement":
-      return <StepFonctionnement />;
+    case "essentiel":
+      return <StepEssentiel />;
     case "inspire":
       return <StepInspire />;
     case "outils":
       return <StepOutils />;
-    case "ensuite":
-      return <StepEnsuite />;
     default:
-      return <StepDeclic />;
+      return <StepEssentiel />;
   }
 }
 
@@ -314,7 +246,7 @@ interface LineLayout {
 // ——— Composant principal : Roadmap ———
 
 export function AIPanel() {
-  const [activeStep, setActiveStep] = useState<RoadmapStepId>("declic");
+  const [activeStep, setActiveStep] = useState<RoadmapStepId>("essentiel");
   const reduceMotion = useReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -388,7 +320,7 @@ export function AIPanel() {
         <div className="ai-lab-hero-inner">
           <div className="ai-lab-hero-badge" aria-hidden>
             <span className="ai-lab-hero-badge-dot" />
-            <span>Roadmap IA</span>
+            <span>3 volets</span>
           </div>
           <h1 className="ai-lab-hero-title">{HERO.title}</h1>
           <p className="ai-lab-hero-subtitle">{HERO.subtitle}</p>
@@ -396,7 +328,7 @@ export function AIPanel() {
       </header>
 
       <div className="ai-roadmap-layout">
-        {/* Roadmap horizontale : track mesurée entre centres Déclic et Suite */}
+        {/* Roadmap horizontale : track mesurée entre premier et dernier nœud */}
         <nav className="ai-roadmap-timeline ai-roadmap-timeline--horizontal" aria-label="Étapes de la roadmap">
           <div ref={trackRef} className="ai-roadmap-track ai-roadmap-track--horizontal">
             {/* Ligne construite entre centre premier node et centre dernier node (mesure DOM) */}
