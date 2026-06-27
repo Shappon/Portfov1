@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { ContactBlock } from "@/components/ContactBlock";
 
 interface SectionPageLayoutProps {
   title: string;
   children: React.ReactNode;
+  /** Afficher le bloc contact en pied de page (true par défaut). */
+  showContact?: boolean;
 }
 
 /**
- * En-tête commun pour les pages /me, /projects, /ai (même contenu que les panneaux de l’accueil).
+ * En-tête commun pour les pages /me et /projects (même contenu que les panneaux de l’accueil).
  */
-export function SectionPageLayout({ title, children }: SectionPageLayoutProps) {
+export function SectionPageLayout({ title, children, showContact = true }: SectionPageLayoutProps) {
   return (
     <div
       className="d-flex flex-column min-vh-100"
@@ -35,6 +38,11 @@ export function SectionPageLayout({ title, children }: SectionPageLayoutProps) {
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         {children}
+        {showContact && (
+          <footer className="section-page-footer" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
+            <ContactBlock variant="page" />
+          </footer>
+        )}
       </main>
     </div>
   );

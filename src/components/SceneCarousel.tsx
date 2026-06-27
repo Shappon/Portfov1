@@ -1,24 +1,36 @@
 "use client";
 
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useMediaQueryMatch } from "@/hooks/useMediaQueryMatch";
 import { useFrame } from "@react-three/fiber";
 import { useThree } from "@react-three/fiber";
 import { useSpring, animated } from "@react-spring/three";
-import { Group, Mesh } from "three";
+import { Group } from "three";
 import { Environment, ContactShadows } from "@react-three/drei";
-import { AIBlocks } from "./AIBlocks";
 import { Label3D } from "./Label3D";
 import { Crane } from "@/components/Crane";
 import { BookMesh } from "@/components/shapes/BookMesh";
+import { LinkCubeMesh } from "@/components/shapes/LinkCubeMesh";
+import {
+  isComingSoonSection,
+  isCubeSection,
+  isExternalSection,
+  openExternalSection,
+  type CarouselSection,
+} from "@/data/carousel-sections";
 
 type Mode = "carousel" | "detail";
 type ViewMode = "carousel" | "detail";
 
-interface SectionItem {
-  id: string;
-  title: string;
-  subtitle: string;
+interface SceneCarouselProps {
+  sections: readonly CarouselSection[];
+  viewMode: ViewMode;
+  activeIndex: number;
+  onSelect: (index: number) => void;
+  onEnter: () => void;
+  onCenterHoverChange?: (hovered: boolean) => void;
+  comingSoonPulse?: { id: string; key: number } | null;
+  onComingSoonAttempt?: (sectionId: string) => void;
 }
 
 const SPRING_CONFIG = { mass: 0.8, tension: 120, friction: 14 };
@@ -46,11 +58,28 @@ function getSlot(index: number, activeIndex: number, total: number): Slot {
   return "hidden";
 }
 
-function getLabelForSection(sectionId: string): string {
-  if (sectionId === "me") return "MOI";
-  if (sectionId === "projects") return "PROJETS";
-  if (sectionId === "ai") return "IA";
-  return sectionId.toUpperCase();
+function handleShapeActivate(
+  mode: Mode,
+  slot: Slot,
+  section: CarouselSection,
+  onSelectIndex: () => void,
+  onEnterPanel: () => void,
+  onComingSoonAttempt?: (sectionId: string) => void
+): void {
+  if (mode === "detail") return;
+  if (slot === "center") {
+    if (isComingSoonSection(section)) {
+      onComingSoonAttempt?.(section.id);
+      return;
+    }
+    if (isExternalSection(section)) {
+      openExternalSection(section);
+      return;
+    }
+    onEnterPanel();
+  } else {
+    onSelectIndex();
+  }
 }
 
 function CameraRig({ mode, isMobile }: { mode: Mode; isMobile: boolean }) {
@@ -83,15 +112,6 @@ function useIsMobile(): boolean {
   return useMediaQueryMatch("(max-width: 576px)");
 }
 
-interface SceneCarouselProps {
-  sections: SectionItem[];
-  viewMode: ViewMode;
-  activeIndex: number;
-  onSelect: (index: number) => void;
-  onEnter: () => void;
-  onCenterHoverChange?: (hovered: boolean) => void;
-}
-
 export function SceneCarousel({
   sections,
   viewMode,
@@ -99,6 +119,8 @@ export function SceneCarousel({
   onSelect,
   onEnter,
   onCenterHoverChange,
+  comingSoonPulse,
+  onComingSoonAttempt,
 }: SceneCarouselProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const isMobile = useIsMobile();
@@ -141,6 +163,8 @@ export function SceneCarousel({
           onPointerOut={() => setHoveredIndex(null)}
           onClick={() => onSelect(i)}
           onEnter={onEnter}
+          comingSoonPulse={comingSoonPulse}
+          onComingSoonAttempt={onComingSoonAttempt}
         />
       ))}
     </>
@@ -149,7 +173,7 @@ export function SceneCarousel({
 
 interface CarouselMeshProps {
   index: number;
-  section: SectionItem;
+  section: CarouselSection;
   activeIndex: number;
   totalSections: number;
   mode: Mode;
@@ -159,6 +183,8 @@ interface CarouselMeshProps {
   onPointerOut: () => void;
   onClick: () => void;
   onEnter: () => void;
+  comingSoonPulse?: { id: string; key: number } | null;
+  onComingSoonAttempt?: (sectionId: string) => void;
 }
 
 function CarouselMesh({
@@ -173,6 +199,8 @@ function CarouselMesh({
   onPointerOut,
   onClick,
   onEnter,
+  comingSoonPulse,
+  onComingSoonAttempt,
 }: CarouselMeshProps) {
   const slot = getSlot(index, activeIndex, totalSections);
   const isDetailActive = mode === "detail" && index === activeIndex;
@@ -210,32 +238,9 @@ function CarouselMesh({
     targetOpacity = 1;
   }
 
-  const spring = useSpring({
-    position: [targetX, targetY, targetZ] as [number, number, number],
-    scale: targetScale,
-    config: SPRING_CONFIG,
-  });
-
-  const meshRef = useRef<Mesh | null>(null);
-
-  useFrame((_state, delta) => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
-    const speed = slot === "center" ? 0.2 : 0.5;
-    mesh.rotation.y += delta * speed;
-  });
-
-  const handleClick = () => {
-    if (mode === "detail") return;
-    if (slot === "center") onEnter();
-    else onClick();
-  };
-
   const isBook = section.id === "me";
   const isCrane = section.id === "projects";
-  const isAIBlocks = section.id === "ai";
-  const geometry = useMemo(() => <boxGeometry args={[0.44, 0.44, 0.44]} />, []);
-  const isCenter = slot === "center";
+  const isCube = isCubeSection(section);
 
   if (isBook) {
     return (
@@ -254,19 +259,17 @@ function CarouselMesh({
         onPointerOut={onPointerOut}
         onClick={onClick}
         onEnter={onEnter}
+        onComingSoonAttempt={onComingSoonAttempt}
       />
     );
   }
-  if (isAIBlocks) {
+  if (isCube) {
     return (
-      <CarouselAIBlocks
-        index={index}
+      <CarouselCube
         section={section}
-        activeIndex={activeIndex}
         mode={mode}
         slot={slot}
         isMobile={isMobile}
-        hovered={hovered}
         targetPosition={[targetX, targetY, targetZ]}
         targetScale={targetScale}
         targetOpacity={targetOpacity}
@@ -274,6 +277,8 @@ function CarouselMesh({
         onPointerOut={onPointerOut}
         onClick={onClick}
         onEnter={onEnter}
+        comingSoonPulse={comingSoonPulse}
+        onComingSoonAttempt={onComingSoonAttempt}
       />
     );
   }
@@ -294,63 +299,19 @@ function CarouselMesh({
         onPointerOut={onPointerOut}
         onClick={onClick}
         onEnter={onEnter}
+        onComingSoonAttempt={onComingSoonAttempt}
       />
     );
   }
 
-  return (
-    <animated.group position={spring.position as unknown as [number, number, number]} scale={spring.scale}>
-      {isCenter && mode === "carousel" && (
-        <Label3D
-          text={getLabelForSection(section.id)}
-          visible
-          position={[0, -1.05, 0]}
-          isMobile={isMobile}
-        />
-      )}
-      <animated.mesh
-        ref={meshRef}
-        position={[0, 0, 0]}
-        scale={1}
-        castShadow
-        receiveShadow
-        onClick={(e) => {
-          e.stopPropagation();
-          handleClick();
-        }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          document.body.style.cursor = "pointer";
-          onPointerOver();
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = "default";
-          onPointerOut();
-        }}
-      >
-        {geometry}
-        <meshStandardMaterial
-        color={isCenter ? "#6c7bd8" : "#8a9ac4"}
-        metalness={0.35}
-        roughness={0.4}
-        emissive={isCenter ? "#2a2a4a" : "#1a1a2e"}
-        emissiveIntensity={isCenter ? 0.15 : 0.05}
-        transparent={targetOpacity < 1}
-        opacity={targetOpacity}
-      />
-      </animated.mesh>
-    </animated.group>
-  );
+  return null;
 }
 
-interface CarouselAIBlocksProps {
-  index: number;
-  section: SectionItem;
-  activeIndex: number;
+interface CarouselCubeProps {
+  section: CarouselSection;
   mode: Mode;
   slot: Slot;
   isMobile: boolean;
-  hovered: boolean;
   targetPosition: [number, number, number];
   targetScale: number;
   targetOpacity: number;
@@ -358,9 +319,11 @@ interface CarouselAIBlocksProps {
   onPointerOut: () => void;
   onClick: () => void;
   onEnter: () => void;
+  comingSoonPulse?: { id: string; key: number } | null;
+  onComingSoonAttempt?: (sectionId: string) => void;
 }
 
-function CarouselAIBlocks({
+function CarouselCube({
   section,
   mode,
   slot,
@@ -372,30 +335,47 @@ function CarouselAIBlocks({
   onClick,
   onEnter,
   isMobile,
-}: CarouselAIBlocksProps) {
+  comingSoonPulse,
+  onComingSoonAttempt,
+}: CarouselCubeProps) {
   const groupRef = useRef<Group>(null!);
+  const wiggleRef = useRef(0);
+  const isCenter = slot === "center";
+  const isComingSoon = isComingSoonSection(section);
+  const subtextPulseKey =
+    comingSoonPulse?.id === section.id && isCenter ? comingSoonPulse.key : 0;
   const spring = useSpring({
     position: targetPosition,
     scale: targetScale,
     config: SPRING_CONFIG,
   });
 
-  useFrame((state, delta) => {
+  useEffect(() => {
+    if (comingSoonPulse?.id === section.id) {
+      wiggleRef.current = 0.55;
+    }
+  }, [comingSoonPulse, section.id]);
+
+  useFrame((_state, delta) => {
     const group = groupRef.current;
     if (!group) return;
     const speed = slot === "center" ? 0.2 : 0.5;
     group.rotation.y += delta * speed;
-    if (mode === "detail" && targetOpacity > 0.5) {
-      group.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.02;
+    group.rotation.x += delta * (slot === "center" ? 0.08 : 0.12);
+
+    if (wiggleRef.current > 0) {
+      wiggleRef.current -= delta;
+      const t = wiggleRef.current * 18;
+      group.rotation.z = Math.sin(t) * 0.14;
+      group.position.y = Math.sin(t * 1.4) * 0.04;
     } else {
-      group.position.y = 0;
+      group.rotation.z *= 0.85;
+      group.position.y *= 0.85;
     }
   });
 
   const handleClick = () => {
-    if (mode === "detail") return;
-    if (slot === "center") onEnter();
-    else onClick();
+    handleShapeActivate(mode, slot, section, onClick, onEnter, onComingSoonAttempt);
   };
 
   return (
@@ -408,7 +388,7 @@ function CarouselAIBlocks({
       }}
       onPointerOver={(e) => {
         e.stopPropagation();
-        document.body.style.cursor = "pointer";
+        document.body.style.cursor = isComingSoon ? "default" : "pointer";
         onPointerOver();
       }}
       onPointerOut={() => {
@@ -416,24 +396,23 @@ function CarouselAIBlocks({
         onPointerOut();
       }}
     >
-      {slot === "center" && mode === "carousel" && (
+      {isCenter && mode === "carousel" && (
         <Label3D
-          text={getLabelForSection(section.id)}
+          text={section.label}
+          subtext={section.sublabel}
           visible
-          position={[0, -1.05, 0]}
+          position={[0, -0.62, 0]}
           isMobile={isMobile}
+          fontSize={isMobile ? 0.22 : 0.24}
+          subtextPulseKey={subtextPulseKey}
         />
       )}
-      <group ref={groupRef}>
-        <AIBlocks
-          scale={0.72}
-          color="#6c7bd8"
-          emissive="#3a4a9a"
-          emissiveIntensity={0.2}
-          thickness={0.12}
-          height={0.9}
-          width={1.15}
-          gap={0.08}
+      <group ref={groupRef} scale={0.82}>
+        <LinkCubeMesh
+          size={0.48}
+          color={isCenter ? section.cubeColor ?? "#6c7bd8" : "#8a9ac4"}
+          emissive={isCenter ? section.cubeEmissive ?? "#2a2a4a" : "#1a1a2e"}
+          emissiveIntensity={isCenter ? 0.18 : 0.06}
           opacity={targetOpacity}
         />
       </group>
@@ -443,7 +422,7 @@ function CarouselAIBlocks({
 
 interface CarouselCraneProps {
   index: number;
-  section: SectionItem;
+  section: CarouselSection;
   activeIndex: number;
   mode: Mode;
   slot: Slot;
@@ -456,6 +435,7 @@ interface CarouselCraneProps {
   onPointerOut: () => void;
   onClick: () => void;
   onEnter: () => void;
+  onComingSoonAttempt?: (sectionId: string) => void;
 }
 
 function CarouselCrane({
@@ -470,6 +450,7 @@ function CarouselCrane({
   onClick,
   onEnter,
   isMobile,
+  onComingSoonAttempt,
 }: CarouselCraneProps) {
   const groupRef = useRef<Group>(null!);
   const spring = useSpring({
@@ -491,9 +472,7 @@ function CarouselCrane({
   });
 
   const handleClick = () => {
-    if (mode === "detail") return;
-    if (slot === "center") onEnter();
-    else onClick();
+    handleShapeActivate(mode, slot, section, onClick, onEnter, onComingSoonAttempt);
   };
 
   return (
@@ -515,12 +494,7 @@ function CarouselCrane({
       }}
     >
       {slot === "center" && mode === "carousel" && (
-        <Label3D
-          text={getLabelForSection(section.id)}
-          visible
-          position={[0, -1.05, 0]}
-          isMobile={isMobile}
-        />
+        <Label3D text={section.label} visible position={[0, -1.05, 0]} isMobile={isMobile} />
       )}
       <group ref={groupRef}>
         <group position={[0, -0.5, 0]} scale={0.24}>
@@ -533,7 +507,7 @@ function CarouselCrane({
 
 interface CarouselBookProps {
   index: number;
-  section: SectionItem;
+  section: CarouselSection;
   activeIndex: number;
   mode: Mode;
   slot: Slot;
@@ -546,6 +520,7 @@ interface CarouselBookProps {
   onPointerOut: () => void;
   onClick: () => void;
   onEnter: () => void;
+  onComingSoonAttempt?: (sectionId: string) => void;
 }
 
 function CarouselBook({
@@ -561,6 +536,7 @@ function CarouselBook({
   onClick,
   onEnter,
   isMobile,
+  onComingSoonAttempt,
 }: CarouselBookProps) {
   const groupRef = useRef<Group>(null!);
   const isCenter = slot === "center";
@@ -583,9 +559,7 @@ function CarouselBook({
   });
 
   const handleClick = () => {
-    if (mode === "detail") return;
-    if (slot === "center") onEnter();
-    else onClick();
+    handleShapeActivate(mode, slot, section, onClick, onEnter, onComingSoonAttempt);
   };
 
   return (
@@ -607,12 +581,7 @@ function CarouselBook({
       }}
     >
       {isCenter && mode === "carousel" && (
-        <Label3D
-          text={getLabelForSection(section.id)}
-          visible
-          position={[0, -1.05, 0]}
-          isMobile={isMobile}
-        />
+        <Label3D text={section.label} visible position={[0, -1.05, 0]} isMobile={isMobile} />
       )}
       <group ref={groupRef} scale={0.42}>
         <BookMesh active={isCenter} hovered={hovered} opacity={targetOpacity} onClick={handleClick} />

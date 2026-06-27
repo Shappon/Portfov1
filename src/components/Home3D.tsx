@@ -3,30 +3,31 @@
 import { useCallback, useEffect, useState } from "react";
 import { useMediaQueryMatch } from "@/hooks/useMediaQueryMatch";
 import { Canvas } from "@react-three/fiber";
+import {
+  CAROUSEL_SECTIONS,
+  isComingSoonSection,
+  isExternalSection,
+  openExternalSection,
+  type CarouselSection,
+} from "@/data/carousel-sections";
 import { SceneCarousel } from "./SceneCarousel";
 import { DetailPanel } from "./DetailPanel";
 import { HeroIdentity } from "./HeroIdentity";
 import { SceneMobileNav } from "./SceneMobileNav";
 
-export interface SectionItem {
-  id: string;
-  title: string;
-  subtitle: string;
-}
-
+export type { CarouselSection as SectionItem };
 export type ViewMode = "carousel" | "detail";
-
-const SECTIONS: SectionItem[] = [
-  { id: "me", title: "Moi", subtitle: "Développeur autodidacte • Produits • IA (et pédagogie)" },
-  { id: "projects", title: "Explorer mes projets", subtitle: "SaaS • Tools • Expérimentations" },
-  { id: "ai", title: "IA", subtitle: "Pédagogie, IA, repères & ressources" },
-];
 
 export default function Home3D() {
   const [viewMode, setViewMode] = useState<ViewMode>("carousel");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [comingSoonPulse, setComingSoonPulse] = useState<{ id: string; key: number } | null>(null);
 
-  const totalSections = SECTIONS.length;
+  const totalSections = CAROUSEL_SECTIONS.length;
+
+  const triggerComingSoon = useCallback((sectionId: string) => {
+    setComingSoonPulse({ id: sectionId, key: Date.now() });
+  }, []);
   const goLeft = useCallback(() => {
     if (viewMode !== "carousel") return;
     setActiveIndex((i) => (i + totalSections - 1) % totalSections);
@@ -37,8 +38,42 @@ export default function Home3D() {
     setActiveIndex((i) => (i + 1) % totalSections);
   }, [viewMode, totalSections]);
 
-  const enter = useCallback(() => setViewMode("detail"), []);
   const exit = useCallback(() => setViewMode("carousel"), []);
+
+  const openSection = useCallback((id: string) => {
+    const index = CAROUSEL_SECTIONS.findIndex((s) => s.id === id);
+    if (index < 0) return;
+    const section = CAROUSEL_SECTIONS[index];
+    setActiveIndex(index);
+    if (isComingSoonSection(section)) {
+      triggerComingSoon(section.id);
+      return;
+    }
+    if (isExternalSection(section)) {
+      openExternalSection(section);
+      return;
+    }
+    setViewMode("detail");
+  }, [triggerComingSoon]);
+
+  const activateCenter = useCallback(() => {
+    const section = CAROUSEL_SECTIONS[activeIndex];
+    if (isComingSoonSection(section)) {
+      triggerComingSoon(section.id);
+      return;
+    }
+    if (isExternalSection(section)) {
+      openExternalSection(section);
+      return;
+    }
+    setViewMode("detail");
+  }, [activeIndex, triggerComingSoon]);
+
+  const onViewProjects = useCallback(() => openSection("projects"), [openSection]);
+
+  const scrollToCvContact = useCallback(() => {
+    document.querySelector(".cv-contact-list")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
 
   useEffect(() => {
     document.body.classList.add("home-fullpage");
@@ -63,18 +98,21 @@ export default function Home3D() {
           const target = e.target as HTMLElement;
           if (target?.closest("button") || target?.closest("a")) return;
           e.preventDefault();
-          enter();
+          activateCenter();
         }
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [viewMode, goLeft, goRight, enter, exit]);
+  }, [viewMode, goLeft, goRight, activateCenter, exit]);
 
-  const active = SECTIONS[activeIndex];
+  const active = CAROUSEL_SECTIONS[activeIndex];
   const reduceMotion = useMediaQueryMatch("(prefers-reduced-motion: reduce)");
   const isNarrowViewport = useMediaQueryMatch("(max-width: 768px)");
   const detailNarrow = viewMode === "detail" && isNarrowViewport;
+  const activeIsExternal = isExternalSection(active);
+  const activeIsComingSoon = isComingSoonSection(active);
+  const mobilePrimaryLabel = activeIsComingSoon ? "Bientôt" : activeIsExternal ? "Visiter" : "Ouvrir";
 
   return (
     <div
@@ -92,35 +130,35 @@ export default function Home3D() {
         gl={{ antialias: true }}
       >
         <SceneCarousel
-          sections={SECTIONS}
+          sections={CAROUSEL_SECTIONS}
           viewMode={viewMode}
           activeIndex={activeIndex}
           onSelect={setActiveIndex}
-          onEnter={enter}
+          onEnter={activateCenter}
+          comingSoonPulse={comingSoonPulse}
+          onComingSoonAttempt={triggerComingSoon}
         />
       </Canvas>
 
       <div className="home3d-overlay">
         {viewMode === "carousel" && (
           <>
-            <HeroIdentity
-              isHighlight={active?.id === "me"}
-              reduceMotion={reduceMotion}
-            />
+            <HeroIdentity isHighlight={active?.id === "me"} reduceMotion={reduceMotion} />
             {isNarrowViewport && (
               <SceneMobileNav
                 activeIndex={activeIndex}
                 total={totalSections}
                 activeTitle={active.title}
+                primaryActionLabel={mobilePrimaryLabel}
                 onPrev={goLeft}
                 onNext={goRight}
                 onSelect={setActiveIndex}
-                onEnter={enter}
+                onEnter={activateCenter}
               />
             )}
           </>
         )}
-        {viewMode === "detail" && (
+        {viewMode === "detail" && !activeIsExternal && (
           <>
             <div
               className="home3d-overlay-backdrop"
@@ -134,6 +172,8 @@ export default function Home3D() {
               mode="detail"
               section={{ id: active.id, title: active.title, subtitle: active.subtitle }}
               onBack={exit}
+              onViewProjects={onViewProjects}
+              onContact={scrollToCvContact}
             />
           </>
         )}

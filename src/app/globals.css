@@ -14,6 +14,94 @@ body {
   overflow-x: hidden;
 }
 
+/* ——— Scrollbars — thème sombre + accent bleu-indigo (énergie du site) ——— */
+:root {
+  --scrollbar-size: 8px;
+  --scrollbar-track: rgba(255, 255, 255, 0.03);
+  --scrollbar-thumb: rgba(99, 102, 241, 0.42);
+  --scrollbar-thumb-hover: rgba(99, 102, 241, 0.68);
+  --scrollbar-thumb-active: rgba(59, 111, 240, 0.88);
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(99, 102, 241, 0.58) 0%,
+    rgba(44, 95, 214, 0.52) 100%
+  );
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(167, 169, 255, 0.12);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(99, 102, 241, 0.88) 0%,
+    rgba(59, 111, 240, 0.78) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(199, 201, 255, 0.22),
+    0 0 10px rgba(99, 102, 241, 0.28);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(
+    180deg,
+    rgba(59, 111, 240, 0.95) 0%,
+    rgba(44, 95, 214, 0.9) 100%
+  );
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Scroll horizontal masqué (roadmap IA mobile) */
+.ai-roadmap-timeline--horizontal {
+  scrollbar-width: none !important;
+  scrollbar-color: transparent transparent !important;
+}
+.ai-roadmap-timeline--horizontal::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --scrollbar-size: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *::-webkit-scrollbar-thumb {
+    transition: none;
+  }
+}
+
 body.home-fullpage {
   overflow: hidden;
   height: 100vh;
@@ -261,10 +349,332 @@ a:focus-visible {
   }
 }
 
+/* ——— Hero Actions : pitch de positionnement + CTA (mode carousel) ——— */
+.hero-actions {
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: min(92vw, 54rem);
+  text-align: center;
+  pointer-events: none;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+.hero-actions-pitch {
+  margin-bottom: 1.1rem;
+}
+.hero-actions-title {
+  margin: 0 auto 0.4rem;
+  max-width: 46rem;
+  font-size: clamp(0.98rem, 1.8vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6), 0 0 24px rgba(10, 10, 10, 0.5);
+}
+.hero-actions-subtitle {
+  margin: 0 auto;
+  max-width: 40rem;
+  font-size: clamp(0.82rem, 1.4vw, 0.95rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.68);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+.hero-actions-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  pointer-events: auto;
+}
+.hero-actions-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  touch-action: manipulation;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
+}
+.hero-actions-btn--primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 2px 18px rgba(99, 102, 241, 0.32);
+}
+.hero-actions-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.42);
+}
+.hero-actions-btn--ghost {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.hero-actions-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.32);
+  transform: translateY(-2px);
+}
+.hero-actions-btn:focus-visible {
+  outline: 2px solid rgba(147, 197, 253, 0.9);
+  outline-offset: 2px;
+}
+
+/* Mobile : pitch compact sous l'identité, sans boutons (la nav mobile gère l'ouverture) */
+.hero-actions--compact {
+  bottom: auto;
+  top: 30%;
+  width: min(92vw, 32rem);
+}
+.hero-actions--compact .hero-actions-pitch {
+  margin-bottom: 0;
+}
+.hero-actions--compact .hero-actions-title {
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+.hero-actions--compact .hero-actions-subtitle {
+  display: none;
+}
+@media (max-width: 420px) {
+  .hero-actions--compact {
+    top: 28%;
+  }
+  .hero-actions--compact .hero-actions-title {
+    font-size: 0.85rem;
+  }
+}
+
+/* Section Moi : boutons à droite du CV, hors de la feuille */
+.cv-stage-main {
+  width: 100%;
+  max-width: min(88rem, 100%);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+}
+.cv-stage-main .cv-tilt {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 52rem;
+}
+/* Section Moi : colonne droite (boutons + lecteur vidéo) */
+.cv-stage-aside {
+  position: sticky;
+  top: clamp(3.5rem, 8vh, 5rem);
+  flex: 0 1 clamp(22rem, 34vw, 32rem);
+  width: clamp(22rem, 34vw, 32rem);
+  max-width: 32rem;
+  /* ~21 % de la hauteur du CV (un peu moins qu’un quart) */
+  --cv-video-player-height: min(22rem, 36vh);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  align-self: flex-start;
+  z-index: 2;
+}
+.hero-actions--panel {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  padding-top: clamp(0.5rem, 2vw, 1.25rem);
+  text-align: left;
+  pointer-events: auto;
+}
+.hero-actions--panel .hero-actions-cta {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.55rem;
+}
+.hero-actions--panel .hero-actions-btn {
+  width: 100%;
+  justify-content: center;
+}
+@media (max-width: 900px) {
+  .cv-stage-main {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .cv-stage-aside {
+    position: static;
+    width: 100%;
+    max-width: min(100%, 32rem);
+    flex: 0 1 auto;
+    --cv-video-player-height: min(20rem, 44vw);
+  }
+  .hero-actions--panel {
+    padding-top: 0;
+  }
+  .hero-actions--panel .hero-actions-cta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hero-actions--panel .hero-actions-btn {
+    width: auto;
+    flex: 1 1 calc(50% - 0.3rem);
+    min-width: 9rem;
+  }
+}
+
+/* Mots-clés expérience → déclenchement vidéo au survol */
+.cv-video-trigger {
+  cursor: pointer;
+  border-radius: 0.15rem;
+  padding: 0 0.1rem;
+  margin: 0 -0.1rem;
+  text-decoration: underline;
+  text-decoration-color: rgba(154, 123, 79, 0.45);
+  text-underline-offset: 2px;
+  transition: color 0.15s ease, background 0.15s ease, text-decoration-color 0.15s ease;
+}
+.cv-video-trigger:hover,
+.cv-video-trigger--active,
+.cv-video-trigger:focus-visible {
+  color: #7a5c32;
+  background: rgba(154, 123, 79, 0.12);
+  text-decoration-color: #9a7b4f;
+  outline: none;
+}
+.cv-video-trigger:focus-visible {
+  box-shadow: 0 0 0 2px rgba(154, 123, 79, 0.45);
+}
+.cv-sidebar .cv-video-trigger {
+  font-weight: inherit;
+}
+
+/* Lecteur YouTube (zone droite, sous les boutons) */
+.cv-video-player {
+  flex: 0 0 auto;
+  height: var(--cv-video-player-height, min(22rem, 36vh));
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background: rgba(8, 10, 14, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.cv-video-player--active {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.2);
+}
+.cv-video-player-label {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0.55rem 0.75rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  line-height: 1.3;
+}
+.cv-video-player-frame {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  background: #000;
+}
+.cv-video-player-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.cv-video-player-placeholder,
+.cv-video-player-idle {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+}
+.cv-video-player-idle {
+  position: relative;
+}
+.cv-video-player-placeholder {
+  position: absolute;
+  inset: 0;
+}
+.cv-video-player-placeholder-icon {
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+.cv-video-player-placeholder-hint,
+.cv-video-player-idle-hint {
+  margin: 0;
+  font-size: 0.65rem;
+  opacity: 0.65;
+  line-height: 1.35;
+}
+.cv-video-player-idle-hint {
+  max-width: 95%;
+}
+.cv-video-player-placeholder code {
+  font-size: 0.62rem;
+  color: rgba(147, 197, 253, 0.9);
+}
+
 .detail-panel-wrap {
-  z-index: 1;
-  /* Réserver une zone à gauche pour la forme 3D (éviter recouvrement) */
-  max-width: min(65vw, 1500px);
+  z-index: 3;
+  /* Plein écran : le contenu détail occupe toute la page */
+  width: 100%;
+  max-width: 100%;
+}
+/* Plein écran : pas de coins arrondis ni de marge, la carte couvre tout */
+.detail-panel-card-shell {
+  border-radius: 0 !important;
+}
+
+/* Miniature 3D dans l'en-tête du contenu plein écran */
+.detail-panel-topbar-shape {
+  width: 2.75rem;
+  height: 2.75rem;
+  pointer-events: none;
+}
+.detail-panel-mini-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+@media (max-width: 576px) {
+  .detail-panel-topbar-shape {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
 /* Section Moi : hover cartes + timeline */
@@ -459,6 +869,7 @@ a:focus-visible {
 
   .detail-panel-close-btn {
     min-height: 44px;
+    min-width: 44px;
   }
 }
 
@@ -1466,6 +1877,117 @@ a:focus-visible {
   .me-panel-timeline-step:hover .me-panel-timeline-num { transform: none; }
 }
 
+/* ——— Bloc "Ce que je peux construire" (MePanel) ——— */
+.me-panel-services {
+  padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1rem, 2vw, 1.75rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.me-panel-services-title {
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: -0.01em;
+  margin: 0 0 1rem;
+}
+.me-panel-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+.me-panel-service-card {
+  padding: 0.85rem 1rem;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.me-panel-service-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+.me-panel-service-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.94);
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+.me-panel-service-card-benefit {
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ——— Bloc Contact (réutilisable : MePanel, pages SEO) ——— */
+.contact-block {
+  padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1rem, 2vw, 1.75rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.contact-block--page {
+  max-width: 60rem;
+  margin: 0 auto;
+}
+.contact-block-title {
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+}
+.contact-block-message {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.55;
+  max-width: 40rem;
+  margin: 0 0 1rem;
+}
+.contact-block-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.contact-block-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+}
+.contact-block-link:hover {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.contact-block-link:focus-visible {
+  outline: 2px solid rgba(147, 197, 253, 0.9);
+  outline-offset: 2px;
+}
+.contact-block-link-arrow {
+  font-size: 0.95rem;
+  opacity: 0.7;
+}
+@media (prefers-reduced-motion: reduce) {
+  .me-panel-service-card,
+  .contact-block-link {
+    transition: none;
+  }
+  .me-panel-service-card:hover,
+  .contact-block-link:hover {
+    transform: none;
+  }
+}
+
 /* Section Projets — thème sombre (même style que Moi) */
 .detail-panel-projects-active .card {
   background: #1a1d21 !important;
@@ -1660,6 +2182,9 @@ a:focus-visible {
   cursor: pointer;
   min-width: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 0.95rem !important;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.2s ease, background 0.2s ease;
 }
 .projects-panel-card:hover {
@@ -1741,10 +2266,15 @@ a:focus-visible {
   border-color: rgba(249, 115, 22, 0.4);
 }
 .projects-panel-card-desc {
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.5;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.45;
   overflow-wrap: anywhere;
   word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .detail-panel-projects-active .projects-panel-badge-sm {
   background: rgba(255, 255, 255, 0.08);
@@ -1763,6 +2293,103 @@ a:focus-visible {
 .projects-panel-card--saas:hover { border-color: rgba(59, 130, 246, 0.35) !important; }
 .projects-panel-card--dev:hover { border-color: rgba(34, 197, 94, 0.35) !important; }
 .projects-panel-card--reseau:hover { border-color: rgba(249, 115, 22, 0.35) !important; }
+
+/* ——— Méta cartes projets : featured, niveau, statut, highlight, preuve ——— */
+.projects-panel-card-featured {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 1rem;
+  color: #fde68a;
+  background: rgba(234, 179, 8, 0.16);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  white-space: nowrap;
+}
+.projects-panel-card-meta {
+  align-items: center;
+}
+.projects-panel-card-level,
+.projects-panel-card-status {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.82);
+}
+.projects-panel-card-level {
+  color: #c7d2fe;
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.16);
+}
+.projects-panel-card-status--proof {
+  color: rgba(255, 255, 255, 0.9);
+}
+.projects-panel-card-highlight {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+.projects-panel-card-highlight-icon {
+  color: #93c5fd;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+.projects-panel-badge-sm--more {
+  opacity: 0.75;
+}
+.projects-panel-card-proof {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+.projects-panel-card-proof-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+  flex-shrink: 0;
+}
+
+/* Pill "Mis en avant" dans les filtres */
+.detail-panel-projects-active .btn-pill-main--featured.btn-pill-main--active,
+.btn-pill-main--featured.btn-pill-main--active {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  color: #1a1a1a;
+  border-color: rgba(234, 179, 8, 0.5);
+  box-shadow: 0 2px 12px rgba(234, 179, 8, 0.35);
+}
+
+/* Highlight et badges dans la hero du case study */
+.project-case-study-hero-badges {
+  margin-bottom: 0.5rem;
+}
+.project-case-study-hero-highlight {
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0.35rem 0 0.6rem;
+  padding-left: 0.75rem;
+  border-left: 3px solid rgba(147, 197, 253, 0.6);
+}
 /* ——— Mode détail projet (ProjectDetail) ——— */
 .projects-panel-detail {
   min-height: 0;
@@ -3962,14 +4589,10 @@ a:focus-visible {
     margin-bottom: 0.75rem;
     padding: 0.2rem 0.5rem;
   }
-  /* Roadmap mobile : chip-bar compact + scroll-snap, sans gros cercles */
+  /* Roadmap mobile : chip-bar compact + scroll-snap, sans barre visible */
   .ai-roadmap-timeline--horizontal {
     padding: 0.6rem 0.5rem 0.7rem;
     scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-  .ai-roadmap-timeline--horizontal::-webkit-scrollbar {
-    display: none;
   }
   .ai-roadmap-track--horizontal {
     gap: 0.4rem;
@@ -4116,5 +4739,555 @@ a:focus-visible {
   .projects-panel-demo-btn,
   .detail-panel-projects-active .projects-panel-footer-btn {
     min-height: 40px;
+  }
+}
+
+/* =====================================================================
+   Section « Moi » — CV 3D interactif (feuille A4 inclinable + pop-overs)
+   Namespace .cv-* : n'impacte que la section Moi.
+   ===================================================================== */
+.cv-stage {
+  --cv-ink: #2a2a2a;
+  --cv-ink-soft: #4a4a4a;
+  --cv-accent: #9a7b4f;
+  --cv-sidebar-bg: #e5d9c8;
+  --cv-sidebar-ink: #3d3d3d;
+  --cv-hairline: rgba(60, 50, 40, 0.15);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(0.75rem, 2.5vw, 2rem) clamp(0.75rem, 3vw, 2.5rem) clamp(2rem, 5vw, 4rem);
+}
+
+/* Switcher de CV (sticky, segmented control) */
+.cv-switcher {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.3rem;
+  margin-bottom: clamp(0.9rem, 2.2vw, 1.6rem);
+  border-radius: 999px;
+  background: rgba(15, 17, 21, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.cv-switch-btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  min-height: 40px;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.cv-switch-btn:hover {
+  color: rgba(255, 255, 255, 0.92);
+}
+.cv-switch-btn--active {
+  color: #fff;
+  background: linear-gradient(135deg, #3b6ff0 0%, #2c5fd6 100%);
+  box-shadow: 0 4px 14px rgba(44, 95, 214, 0.4);
+}
+.cv-switch-btn:focus-visible {
+  outline: 2px solid rgba(147, 197, 253, 0.95);
+  outline-offset: 2px;
+}
+
+/* Conteneur de la zone qui change entre les CV (évite le saut horizontal) */
+.cv-swap {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+/* En overlay plein écran : la scène scrolle, le fond reste sombre */
+.detail-panel-me-active .cv-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(44, 95, 214, 0.12), transparent 60%),
+    #15171b;
+}
+
+.cv-tilt {
+  perspective: 1500px;
+  width: 100%;
+  max-width: 52rem;
+}
+.cv-tilt--static {
+  perspective: none;
+}
+
+.cv-sheet {
+  position: relative;
+  width: 100%;
+  min-height: min(85vh, 52rem);
+  color: var(--cv-ink);
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 0.35rem;
+  padding: 0;
+  overflow: hidden;
+  box-shadow:
+    0 36px 70px -28px rgba(0, 0, 0, 0.6),
+    0 10px 24px rgba(0, 0, 0, 0.32);
+  transform: rotateX(var(--cv-rx, 0deg)) rotateY(var(--cv-ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.3s ease;
+  will-change: transform;
+}
+.cv-sheet--classic {
+  aspect-ratio: auto;
+}
+.cv-tilt--static .cv-sheet {
+  transform: none;
+}
+.cv-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--cv-mx, 50%) var(--cv-my, 30%),
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0) 45%
+  );
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Layout CV classique : sidebar beige + colonne blanche */
+.cv-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.38fr) minmax(0, 1fr);
+  min-height: 100%;
+}
+
+.cv-sidebar {
+  position: relative;
+  background: var(--cv-sidebar-bg);
+  padding: clamp(1.1rem, 2.5vw, 1.75rem) clamp(0.85rem, 2vw, 1.25rem);
+  color: var(--cv-sidebar-ink);
+  overflow: hidden;
+}
+.cv-sidebar-deco {
+  position: absolute;
+  top: -2.5rem;
+  left: -2.5rem;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+.cv-sidebar-name {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(1.15rem, 1.2vw + 0.85rem, 1.55rem);
+  font-weight: 700;
+  color: #2f2f2f;
+  margin: 0 0 1.1rem;
+  line-height: 1.15;
+}
+.cv-sidebar-block {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0.95rem;
+}
+.cv-sidebar-title {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #3a3a3a;
+  margin: 0 0 0.4rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(60, 50, 40, 0.35);
+}
+.cv-sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #3f3f3f;
+}
+.cv-sidebar-list li + li {
+  margin-top: 0.2rem;
+}
+.cv-sidebar-list a {
+  color: inherit;
+  text-decoration: none;
+  word-break: break-word;
+}
+.cv-sidebar-list a:hover {
+  text-decoration: underline;
+}
+.cv-sidebar-list--bullets {
+  list-style: disc;
+  padding-left: 1rem;
+}
+.cv-sidebar-edu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.cv-sidebar-edu li {
+  font-size: 0.64rem;
+  line-height: 1.4;
+}
+.cv-sidebar-edu strong {
+  display: block;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.1rem;
+}
+.cv-sidebar-edu span {
+  color: #4a4a4a;
+}
+
+/* En-tête colonne principale : intitulé poste */
+.cv-main-head {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--cv-hairline);
+}
+.cv-main-jobtitle {
+  margin: 0;
+  font-size: clamp(0.72rem, 0.4vw + 0.62rem, 0.88rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: #2f2f2f;
+}
+.cv-portfolio-skills {
+  margin-top: 0.45rem;
+}
+
+/* Colonne principale */
+.cv-main {
+  background: #ffffff;
+  padding: clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2.4vw, 1.75rem);
+}
+.cv-main-section {
+  margin-bottom: clamp(0.85rem, 1.8vw, 1.25rem);
+}
+.cv-main-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #333;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid rgba(60, 50, 40, 0.25);
+}
+.cv-main-title--accent {
+  color: var(--cv-accent);
+  border-bottom-color: var(--cv-accent);
+  letter-spacing: 0.1em;
+}
+.cv-main-text {
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--cv-ink-soft);
+  margin: 0;
+}
+.cv-main-bullets {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--cv-ink-soft);
+}
+.cv-main-bullets li + li {
+  margin-top: 0.15rem;
+}
+.cv-portfolio {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.cv-portfolio a {
+  color: #1a1a1a;
+  text-decoration: none;
+}
+.cv-portfolio a:hover {
+  text-decoration: underline;
+}
+
+/* Expériences (reproduction CV papier) */
+.cv-xp-real {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.cv-xp-real-item {
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--cv-hairline);
+}
+.cv-xp-real-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.cv-xp-real-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+.cv-xp-real-role {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #1f1f1f;
+  margin: 0;
+  line-height: 1.25;
+}
+.cv-xp-real-company {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #444;
+  margin: 0.1rem 0 0;
+}
+.cv-xp-real-period {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+}
+.cv-xp-real-summary {
+  font-size: 0.67rem;
+  line-height: 1.45;
+  color: var(--cv-ink-soft);
+  margin: 0.25rem 0 0;
+}
+
+/* Grille Réseaux / Dev */
+.cv-skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--cv-hairline);
+}
+.cv-skills-col .cv-main-title {
+  font-size: 0.64rem;
+}
+
+@media (max-width: 720px) {
+  .cv-layout {
+    grid-template-columns: 1fr;
+  }
+  .cv-sidebar {
+    padding-bottom: 0.75rem;
+  }
+  .cv-skills-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .cv-stage {
+    padding: 0.75rem 0.6rem 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-sheet {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ——— CV personnel : présentation éditoriale (hors logique CV papier) ——— */
+.cv-sheet--persona {
+  background: linear-gradient(165deg, #faf6f0 0%, #f3ebe3 48%, #efe4d8 100%);
+  color: #3d3229;
+}
+.cv-persona {
+  position: relative;
+  z-index: 1;
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 2.8vw, 2.25rem) clamp(1.5rem, 3vw, 2.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.85rem, 2vw, 1.35rem);
+  min-height: min(85vh, 52rem);
+}
+.cv-persona-header {
+  text-align: center;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+.cv-persona-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #9a7b5f;
+}
+.cv-persona-name {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.35rem, 2vw + 0.75rem, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: #2f2820;
+}
+.cv-persona-tagline {
+  margin: 0;
+  font-size: clamp(0.78rem, 0.5vw + 0.68rem, 0.92rem);
+  line-height: 1.55;
+  font-style: italic;
+  color: #6b5a48;
+}
+.cv-persona-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  max-width: 40rem;
+  margin: 0 auto;
+  width: 100%;
+}
+.cv-persona-photo-wrap {
+  flex-shrink: 0;
+}
+.cv-persona-photo {
+  display: block;
+  width: clamp(110px, 18vw, 200px);
+  height: auto;
+  aspect-ratio: 11 / 16;
+  object-fit: cover;
+  border-radius: 0.4rem;
+  border: 3px solid rgba(154, 123, 95, 0.35);
+  box-shadow: 0 8px 28px rgba(61, 50, 41, 0.18);
+}
+.cv-persona-nav-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+.cv-persona-nav-hint {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #7a6a58;
+}
+.cv-persona-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.cv-persona-pill {
+  appearance: none;
+  border: 1px solid rgba(122, 106, 88, 0.35);
+  cursor: pointer;
+  text-align: left;
+  min-height: 40px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.45rem;
+  font-size: clamp(0.72rem, 0.4vw + 0.62rem, 0.82rem);
+  font-weight: 600;
+  color: #4a3f34;
+  background: rgba(255, 255, 255, 0.45);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.cv-persona-pill:hover {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(154, 123, 95, 0.55);
+}
+.cv-persona-pill--active {
+  color: #2f2820;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #b8896a;
+  box-shadow: 0 4px 14px rgba(154, 123, 95, 0.22);
+}
+.cv-persona-pill:focus-visible {
+  outline: 2px solid rgba(184, 137, 106, 0.85);
+  outline-offset: 2px;
+}
+.cv-persona-detail {
+  max-width: 40rem;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 5.5rem;
+  padding: clamp(0.75rem, 1.8vw, 1.1rem) clamp(0.85rem, 2vw, 1.25rem);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(122, 106, 88, 0.2);
+}
+.cv-persona-detail-title {
+  margin: 0 0 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9a7b5f;
+}
+.cv-persona-detail-text {
+  margin: 0;
+  font-size: clamp(0.74rem, 0.35vw + 0.66rem, 0.84rem);
+  line-height: 1.6;
+  color: #4a3f34;
+}
+.cv-persona-detail-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: clamp(0.72rem, 0.35vw + 0.64rem, 0.82rem);
+  line-height: 1.55;
+  color: #4a3f34;
+}
+.cv-persona-detail-list li + li {
+  margin-top: 0.35rem;
+}
+.cv-persona-detail-placeholder {
+  margin: 0;
+  font-size: clamp(0.72rem, 0.35vw + 0.64rem, 0.82rem);
+  line-height: 1.55;
+  color: #8a7968;
+  font-style: italic;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .cv-persona-body {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .cv-persona-nav-col {
+    width: 100%;
+    align-items: stretch;
+  }
+  .cv-persona-nav-hint {
+    text-align: center;
+  }
+  .cv-persona-pill {
+    text-align: center;
   }
 }

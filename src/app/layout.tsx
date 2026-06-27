@@ -15,15 +15,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Shuan Huynh — Portfolio",
+    default: "Shuan Huynh — Développeur full-stack autodidacte",
     template: "%s | Shuan Huynh — Portfolio",
   },
   description:
-    "Portfolio développeur, support technique et projets IA : SaaS, outils métiers et expérimentations.",
+    "Développeur full-stack autodidacte. Je conçois des applications web utiles : SaaS, outils métiers, dashboards et assistants IA.",
   openGraph: {
-    title: "Shuan Huynh — Portfolio",
+    title: "Shuan Huynh — Développeur full-stack autodidacte",
     description:
-      "Portfolio développeur, support technique et projets IA : SaaS, outils métiers et expérimentations.",
+      "Je conçois des applications web utiles : SaaS, outils métiers, dashboards et assistants IA.",
+    type: "website",
+    siteName: "Shuan Huynh — Portfolio",
     locale: "fr_FR",
   },
 };

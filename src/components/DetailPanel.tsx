@@ -1,9 +1,10 @@
 "use client";
 
 import { useSpring, animated } from "@react-spring/web";
+import { useMediaQueryMatch } from "@/hooks/useMediaQueryMatch";
 import { MePanel } from "./panels/MePanel";
 import { ProjectsPanel } from "./panels/ProjectsPanel";
-import { AIPanel } from "./panels/AIPanel";
+import { SectionMiniShape } from "./SectionMiniShape";
 
 export interface SectionForPanel {
   id: string;
@@ -15,17 +16,20 @@ interface DetailPanelProps {
   mode: "carousel" | "detail";
   section: SectionForPanel;
   onBack: () => void;
+  onViewProjects?: () => void;
+  onContact?: () => void;
 }
 
-export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
+export function DetailPanel({ mode, section, onBack, onViewProjects, onContact }: DetailPanelProps) {
   const isVisible = mode === "detail";
+  const reduceMotion = useMediaQueryMatch("(prefers-reduced-motion: reduce)");
 
   const smoothConfig = { tension: 60, friction: 26 };
   const contentConfig = { tension: 50, friction: 28 };
 
   const panelStyle = useSpring({
     opacity: isVisible ? 1 : 0,
-    x: isVisible ? 0 : 50,
+    y: isVisible ? 0 : 24,
     filter: isVisible ? "blur(0px)" : "blur(4px)",
     config: smoothConfig,
   });
@@ -46,24 +50,21 @@ export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
 
   const isMeSection = section.id === "me";
   const isProjectsSection = section.id === "projects";
-  const isAISection = section.id === "ai";
-  const isFullscreenSection = isMeSection || isProjectsSection || isAISection;
+  const isFullscreenSection = isMeSection || isProjectsSection;
 
   return (
     <animated.div
-      className={`detail-panel-wrap position-absolute top-0 end-0 h-100 min-h-0 d-flex align-items-stretch overflow-hidden${isMeSection ? " detail-panel-me-active" : ""}${isProjectsSection ? " detail-panel-projects-active" : ""}${isAISection ? " detail-panel-ai-active" : ""}`}
+      className={`detail-panel-wrap position-absolute top-0 start-0 w-100 h-100 min-h-0 d-flex align-items-stretch overflow-hidden${isMeSection ? " detail-panel-me-active" : ""}${isProjectsSection ? " detail-panel-projects-active" : ""}`}
       style={{
-        /* Réserver ~35% à gauche pour la forme 3D, max 1500px, fluide */
-        width: "min(65vw, 1500px)",
-        maxWidth: "min(65vw, 100%)",
-        minWidth: "min(100%, 280px)",
+        /* Plein écran : le contenu occupe toute la page */
         opacity: panelStyle.opacity,
-        transform: panelStyle.x.to((x) => `translateX(${x}px)`),
+        transform: panelStyle.y.to((y) => `translateY(${y}px)`),
         filter: panelStyle.filter,
         pointerEvents: isVisible ? "auto" : "none",
       }}
       onClick={(e) => e.stopPropagation()}
       role="dialog"
+      aria-modal="true"
       aria-label={section.title}
     >
       <div className="card detail-panel-card-shell shadow-lg border-0 rounded-3 w-100 h-100 d-flex flex-column overflow-hidden min-h-0">
@@ -73,8 +74,11 @@ export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
           }`}
         >
           {isFullscreenSection && (
-            <div className="detail-panel-fullscreen-topbar d-flex align-items-center justify-content-between gap-2 border-bottom border-secondary border-opacity-25 flex-shrink-0 px-3 py-2">
-              <div className="min-w-0">
+            <div className="detail-panel-fullscreen-topbar d-flex align-items-center gap-2 gap-sm-3 border-bottom border-secondary border-opacity-25 flex-shrink-0 px-3 py-2">
+              <div className="detail-panel-topbar-shape flex-shrink-0" aria-hidden="true">
+                <SectionMiniShape sectionId={section.id} reduceMotion={reduceMotion} />
+              </div>
+              <div className="min-w-0 flex-grow-1">
                 <h2 className="h6 mb-0 text-white text-truncate">{section.title}</h2>
                 {section.subtitle ? (
                   <p className="small mb-0 text-truncate d-none d-sm-block" style={{ color: "rgba(255, 255, 255, 0.55)" }}>
@@ -86,7 +90,7 @@ export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
                 type="button"
                 className="btn btn-sm btn-light flex-shrink-0 detail-panel-close-btn"
                 onClick={onBack}
-                aria-label="Fermer le panneau et revenir au carousel"
+                aria-label="Fermer et revenir au carousel"
               >
                 Fermer
               </button>
@@ -119,9 +123,10 @@ export function DetailPanel({ mode, section, onBack }: DetailPanelProps) {
             className={isFullscreenSection ? "detail-panel-fullscreen-content" : ""}
             style={{ opacity: bodyStyle.opacity, transform: bodyStyle.y.to((y) => `translateY(${y}px)`) }}
           >
-            {section.id === "me" && <MePanel />}
+            {section.id === "me" && (
+              <MePanel onViewProjects={onViewProjects} onContact={onContact} />
+            )}
             {section.id === "projects" && <ProjectsPanel />}
-            {section.id === "ai" && <AIPanel />}
           </animated.div>
         </div>
       </div>

@@ -13,6 +13,8 @@ interface SceneMobileNavProps {
   activeIndex: number;
   total: number;
   activeTitle: string;
+  /** Libellé du bouton principal (ex. « Ouvrir » ou « Visiter »). */
+  primaryActionLabel?: string;
   onPrev: () => void;
   onNext: () => void;
   onSelect: (index: number) => void;
@@ -23,6 +25,7 @@ export function SceneMobileNav({
   activeIndex,
   total,
   activeTitle,
+  primaryActionLabel = "Ouvrir",
   onPrev,
   onNext,
   onSelect,
@@ -85,9 +88,9 @@ export function SceneMobileNav({
         type="button"
         className="scene-mobile-nav-btn scene-mobile-nav-btn--primary"
         onClick={onEnter}
-        aria-label={`Ouvrir la section ${activeTitle}`}
+        aria-label={`${primaryActionLabel} : ${activeTitle}`}
       >
-        Ouvrir
+        {primaryActionLabel}
       </button>
     </nav>
   );

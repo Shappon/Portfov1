@@ -1,170 +1,441 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { useCallback, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useMediaQueryMatch } from "@/hooks/useMediaQueryMatch";
+import { HeroActions } from "@/components/HeroActions";
+import { CvVideoPlayer } from "@/components/cv/CvVideoPlayer";
+import { CvPersoPanel } from "@/components/cv/CvPersoPanel";
+import {
+  CV_CONTACT,
+  CV_DEV_SKILLS,
+  CV_EDUCATION,
+  CV_EXPERIENCES,
+  CV_FRAMEWORKS,
+  CV_IDENTITY,
+  CV_INTERESTS,
+  CV_LANGUAGES,
+  CV_NETWORK_SKILLS,
+  CV_PROGRAMMING,
+  type CvCompanyPart,
+  type CvVideoKey,
+} from "@/data/cv";
 
-const HERO = {
-  name: "Shuan HUYNH",
-  roleLine1: "Développeur full-stack autodidacte",
-  roleLine2: "SaaS, outils métiers & IA — pédagogie en bonus",
-};
+/**
+ * Section « Moi » — bascule CV personnel (présentation éditoriale) / CV métier (reproduction papier).
+ */
 
-const BLOCS = [
-  {
-    id: "qui",
-    title: "Qui je suis",
-    detail:
-      "Développeur full-stack autodidacte, j’apprends surtout en construisant et en expérimentant. J’aime transformer une idée floue en produit utilisable : cadrage, UX simple, architecture claire, itérations rapides.",
-  },
-  {
-    id: "construis",
-    title: "Ce que je construis",
-    detail:
-      "Des apps web (SaaS), des outils métiers et des expérimentations IA. Je vise des produits qui vont à l’essentiel : interfaces propres, parcours fluides, performance, et robustesse. Quand le contexte s’y prête, j’y intègre aussi de la clarté, du guidage et du feedback côté usage, mais l’horizon reste chaque fois un problème concret, mesurable et livrable.",
-  },
-  {
-    id: "methode",
-    title: "Ma méthode",
-    detailSteps: [
-      "Clarifier le besoin (objectif, contraintes, utilisateurs, succès mesurable).",
-      "Structurer : découper, nommer, rendre le chemin visible (MVP → itérations).",
-      "Construire un premier jet simple et testable, puis durcir (qualité, edge cases).",
-      "Soigner l’expérience : messages, erreurs, états vides, accessibilité, rythme.",
-      "Repartir des retours concrets (utilisateurs, collègues, clients) et ajuster.",
-    ],
-  },
-  {
-    id: "vision",
-    title: "Ma vision",
-    detail:
-      "J’ai surtout envie d’outils qui aident pour de vrai, sans surprendre ni surcharger : simples, fiables, utiles au quotidien. La clarté me semble le bon fil — dans l’interface, dans le code, dans ce qu’on documente — et l’IA, seulement là où elle sert vraiment (accompagner, relire, structurer), en restant honnête sur ce qu’elle ne sait pas.",
-  },
-] as const;
+type CvId = "perso" | "metier";
 
-type BlocId = (typeof BLOCS)[number]["id"];
-type Bloc = (typeof BLOCS)[number];
+const CV_TABS: readonly { id: CvId; label: string }[] = [
+  { id: "perso", label: "CV personnel" },
+  { id: "metier", label: "CV métier" },
+];
 
-const fadeTransition = { duration: 0.25, ease: [0.32, 0.72, 0, 1] as const };
+const MAX_TILT_DEG = 7;
+const EASE_OUT = [0.22, 0.61, 0.36, 1] as const;
 
-function DetailContent({ bloc }: { bloc: Bloc }) {
-  if ("detail" in bloc && bloc.detail) {
-    const paragraphs = bloc.detail.split(/\n\n+/);
-    return (
-      <>
-        {paragraphs.map((paragraph, i) => (
-          <p key={i}>{paragraph}</p>
-        ))}
-      </>
-    );
-  }
-  if ("detailSteps" in bloc && bloc.detailSteps) {
-    return (
-      <ul className="me-panel-detail-steps">
-        {bloc.detailSteps.map((title, i) => (
-          <li key={i}>{title}</li>
-        ))}
-      </ul>
-    );
-  }
-  return null;
+interface MePanelProps {
+  onViewProjects?: () => void;
+  onContact?: () => void;
 }
 
-export function MePanel() {
-  const [activeId, setActiveId] = useState<BlocId | null>(null);
-  const activeBloc = activeId
-    ? (BLOCS.find((b) => b.id === activeId) ?? null)
-    : null;
+function scrollToCvContact(): void {
+  document.querySelector(".cv-sidebar-coords")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
 
-  const selectBloc = (id: BlocId) => {
-    setActiveId((prev) => (prev === id ? null : id));
-  };
+interface VideoHoverHandlers {
+  activeVideoKey: CvVideoKey | null;
+  onVideoEnter: (key: CvVideoKey) => void;
+  onVideoLeave: () => void;
+}
+
+function CvCompanyLine({
+  parts,
+  fallback,
+  activeVideoKey,
+  onVideoEnter,
+  onVideoLeave,
+}: {
+  parts?: readonly CvCompanyPart[];
+  fallback: string;
+  activeVideoKey: CvVideoKey | null;
+  onVideoEnter: (key: CvVideoKey) => void;
+  onVideoLeave: () => void;
+}) {
+  if (!parts?.length) {
+    return <span>{fallback}</span>;
+  }
 
   return (
-    <div className="me-panel-root">
-      <header className="me-panel-hero">
-        <div className="me-panel-hero-inner">
-          <h1 className="me-panel-hero-name">{HERO.name}</h1>
-          <p className="me-panel-hero-role">
-            <span className="me-panel-hero-role-line me-panel-hero-role-line--primary">
-              {HERO.roleLine1}
-            </span>
-            <span className="me-panel-hero-role-line me-panel-hero-role-line--secondary">
-              {HERO.roleLine2}
-            </span>
-          </p>
-        </div>
-      </header>
+    <>
+      {parts.map((part, index) => {
+        if (!part.videoKey) {
+          return <span key={`${part.text}-${index}`}>{part.text}</span>;
+        }
+        const isActive = activeVideoKey === part.videoKey;
+        return (
+          <span
+            key={`${part.text}-${index}`}
+            className={`cv-video-trigger${isActive ? " cv-video-trigger--active" : ""}`}
+            role="button"
+            tabIndex={0}
+            onMouseEnter={() => onVideoEnter(part.videoKey!)}
+            onMouseLeave={onVideoLeave}
+            onFocus={() => onVideoEnter(part.videoKey!)}
+            onBlur={onVideoLeave}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onVideoEnter(part.videoKey!);
+              }
+            }}
+          >
+            {part.text}
+          </span>
+        );
+      })}
+    </>
+  );
+}
 
-      <main className="me-panel-main" aria-label="Présentation">
-        {/* Bloc photo + boutons : column desktop, row mobile (photo gauche / boutons droite) */}
-        <section className="me-panel-actions" aria-label="Photo et thèmes">
-          <div className="me-panel-actions-photo-wrap">
-            <Image
-              src="/me.png"
-              alt="Shuan Huynh"
-              className="me-panel-hero-photo"
-              width={260}
-              height={380}
-              priority
-              sizes="(max-width: 576px) 140px, (max-width: 768px) 200px, 260px"
-            />
-          </div>
+function CvSidebar({ activeVideoKey, onVideoEnter, onVideoLeave }: VideoHoverHandlers) {
+  return (
+    <aside className="cv-sidebar" aria-label="Informations personnelles">
+      <div className="cv-sidebar-deco" aria-hidden="true" />
+      <p className="cv-sidebar-name">{CV_IDENTITY.name}</p>
 
-          <div className="me-panel-nav-blocs" role="tablist" aria-label="Thèmes de présentation">
-            {BLOCS.map((bloc) => {
-              const isActive = activeId === bloc.id;
-              return (
-                <button
-                  key={bloc.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-controls="me-panel-detail-zone"
-                  id={`me-panel-tab-${bloc.id}`}
-                  className={`me-panel-nav-card ${isActive ? "me-panel-nav-card--active" : ""}`}
-                  onClick={() => selectBloc(bloc.id)}
-                >
-                  <span className="me-panel-nav-card-title">{bloc.title}</span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+      <section className="cv-sidebar-block cv-sidebar-coords">
+        <h2 className="cv-sidebar-title">Coordonnées</h2>
+        <ul className="cv-sidebar-list">
+          <li>
+            <a href={`tel:${CV_CONTACT.phone.replace(/\s/g, "")}`}>{CV_CONTACT.phone}</a>
+          </li>
+          <li>
+            <a href={`mailto:${CV_CONTACT.email}`}>{CV_CONTACT.email}</a>
+          </li>
+          <li>{CV_CONTACT.address}</li>
+        </ul>
+      </section>
 
-        <section
-          id="me-panel-detail-zone"
-          className="me-panel-detail-zone"
-          role="tabpanel"
-          aria-labelledby={activeId ? `me-panel-tab-${activeId}` : undefined}
+      <section className="cv-sidebar-block">
+        <h2 className="cv-sidebar-title">Formation</h2>
+        <ul className="cv-sidebar-edu">
+          {CV_EDUCATION.map((edu) => (
+            <li key={edu.diploma}>
+              <strong>
+                <CvCompanyLine
+                  parts={edu.diplomaParts}
+                  fallback={edu.diploma}
+                  activeVideoKey={activeVideoKey}
+                  onVideoEnter={onVideoEnter}
+                  onVideoLeave={onVideoLeave}
+                />
+              </strong>
+              <span>{edu.school}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="cv-sidebar-block">
+        <h2 className="cv-sidebar-title">Langues</h2>
+        <ul className="cv-sidebar-list">
+          {CV_LANGUAGES.map((lang) => (
+            <li key={lang}>{lang}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="cv-sidebar-block">
+        <h2 className="cv-sidebar-title">Langages</h2>
+        <ul className="cv-sidebar-list cv-sidebar-list--bullets">
+          {CV_PROGRAMMING.map((lang) => (
+            <li key={lang}>{lang}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="cv-sidebar-block">
+        <h2 className="cv-sidebar-title">Frameworks</h2>
+        <ul className="cv-sidebar-list cv-sidebar-list--bullets">
+          {CV_FRAMEWORKS.map((fw) => (
+            <li key={fw}>{fw}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="cv-sidebar-block">
+        <h2 className="cv-sidebar-title">Centres d&apos;intérêt</h2>
+        <ul className="cv-sidebar-list cv-sidebar-list--bullets">
+          {CV_INTERESTS.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+    </aside>
+  );
+}
+
+function CvPortfolioBlock() {
+  return (
+    <section className="cv-main-section">
+      <h2 className="cv-main-title cv-main-title--accent">Portefolio</h2>
+      <p className="cv-portfolio">
+        <a href={CV_IDENTITY.portfolioUrl} target="_blank" rel="noopener noreferrer">
+          {CV_IDENTITY.portfolioLabel}
+        </a>
+      </p>
+      <ul className="cv-main-bullets cv-portfolio-skills">
+        {CV_DEV_SKILLS.map((skill) => (
+          <li key={skill}>{skill}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function CvSkillsGrid() {
+  return (
+    <div className="cv-skills-grid">
+      <section className="cv-skills-col" aria-label="Compétences réseau">
+        <h3 className="cv-main-title">Réseaux</h3>
+        <ul className="cv-main-bullets">
+          {CV_NETWORK_SKILLS.map((skill) => (
+            <li key={skill}>{skill}</li>
+          ))}
+        </ul>
+      </section>
+      <section className="cv-skills-col" aria-label="Compétences développement">
+        <h3 className="cv-main-title">Dev</h3>
+        <ul className="cv-main-bullets">
+          {CV_DEV_SKILLS.map((skill) => (
+            <li key={skill}>{skill}</li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
+function CvMetierMain({ activeVideoKey, onVideoEnter, onVideoLeave }: VideoHoverHandlers) {
+  return (
+    <div className="cv-main">
+      <section className="cv-main-section">
+        <h2 className="cv-main-title cv-main-title--accent">Expérience professionnelle</h2>
+        <ol className="cv-xp-real">
+          {CV_EXPERIENCES.map((xp) => (
+            <li key={`${xp.role}-${xp.company}`} className="cv-xp-real-item">
+              <div className="cv-xp-real-head">
+                <div>
+                  <h3 className="cv-xp-real-role">{xp.role}</h3>
+                  <p className="cv-xp-real-company">
+                    <CvCompanyLine
+                      parts={xp.companyParts}
+                      fallback={xp.company}
+                      activeVideoKey={activeVideoKey}
+                      onVideoEnter={onVideoEnter}
+                      onVideoLeave={onVideoLeave}
+                    />
+                  </p>
+                </div>
+                <span className="cv-xp-real-period">{xp.period}</span>
+              </div>
+              {xp.summary ? <p className="cv-xp-real-summary">{xp.summary}</p> : null}
+              {xp.bullets.length > 0 ? (
+                <ul className="cv-main-bullets">
+                  {xp.bullets.map((bullet) => (
+                    <li key={bullet}>{bullet}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <CvPortfolioBlock />
+
+      <CvSkillsGrid />
+    </div>
+  );
+}
+
+export function MePanel({ onViewProjects, onContact }: MePanelProps = {}) {
+  const reduceMotion = useMediaQueryMatch("(prefers-reduced-motion: reduce)");
+  const isCoarsePointer = useMediaQueryMatch("(pointer: coarse)");
+  const tiltDisabled = reduceMotion || isCoarsePointer;
+
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  const [activeCv, setActiveCv] = useState<CvId>("metier");
+  const [direction, setDirection] = useState(1);
+  const [activeVideoKey, setActiveVideoKey] = useState<CvVideoKey | null>(null);
+  const videoLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onVideoEnter = useCallback((key: CvVideoKey) => {
+    if (videoLeaveTimerRef.current) {
+      clearTimeout(videoLeaveTimerRef.current);
+      videoLeaveTimerRef.current = null;
+    }
+    setActiveVideoKey(key);
+  }, []);
+
+  const onVideoLeave = useCallback(() => {
+    if (videoLeaveTimerRef.current) clearTimeout(videoLeaveTimerRef.current);
+    videoLeaveTimerRef.current = setTimeout(() => {
+      setActiveVideoKey(null);
+      videoLeaveTimerRef.current = null;
+    }, 280);
+  }, []);
+
+  const cancelVideoLeave = useCallback(() => {
+    if (videoLeaveTimerRef.current) {
+      clearTimeout(videoLeaveTimerRef.current);
+      videoLeaveTimerRef.current = null;
+    }
+  }, []);
+
+  const clearVideo = useCallback(() => {
+    cancelVideoLeave();
+    setActiveVideoKey(null);
+  }, [cancelVideoLeave]);
+
+  const switchCv = useCallback(
+    (id: CvId) => {
+      setActiveCv((current) => {
+        if (current === id) return current;
+        const currentIndex = CV_TABS.findIndex((t) => t.id === current);
+        const nextIndex = CV_TABS.findIndex((t) => t.id === id);
+        setDirection(nextIndex > currentIndex ? 1 : -1);
+        if (id === "perso") {
+          cancelVideoLeave();
+          setActiveVideoKey(null);
+        }
+        return id;
+      });
+    },
+    [cancelVideoLeave]
+  );
+
+  const handlePointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (tiltDisabled) return;
+      const container = tiltRef.current;
+      const sheet = sheetRef.current;
+      if (!container || !sheet) return;
+
+      const rect = container.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / rect.width;
+      const py = (event.clientY - rect.top) / rect.height;
+      const clampedX = Math.min(Math.max(px, 0), 1);
+      const clampedY = Math.min(Math.max(py, 0), 1);
+
+      sheet.style.setProperty("--cv-ry", `${((clampedX - 0.5) * 2 * MAX_TILT_DEG).toFixed(2)}deg`);
+      sheet.style.setProperty("--cv-rx", `${((0.5 - clampedY) * 2 * MAX_TILT_DEG).toFixed(2)}deg`);
+      sheet.style.setProperty("--cv-mx", `${(clampedX * 100).toFixed(1)}%`);
+      sheet.style.setProperty("--cv-my", `${(clampedY * 100).toFixed(1)}%`);
+    },
+    [tiltDisabled]
+  );
+
+  const resetTilt = useCallback(() => {
+    const sheet = sheetRef.current;
+    if (!sheet) return;
+    sheet.style.setProperty("--cv-ry", "0deg");
+    sheet.style.setProperty("--cv-rx", "0deg");
+    sheet.style.setProperty("--cv-mx", "50%");
+    sheet.style.setProperty("--cv-my", "30%");
+  }, []);
+
+  const slide = reduceMotion ? 0 : 36;
+
+  const handleViewProjects = onViewProjects ?? (() => {
+    window.location.assign("/projects");
+  });
+  const handleContact = onContact ?? scrollToCvContact;
+
+  return (
+    <div className="cv-stage">
+      <div className="cv-switcher" role="tablist" aria-label="Choisir un CV">
+        {CV_TABS.map((tab) => {
+          const isActive = activeCv === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`cv-switch-btn${isActive ? " cv-switch-btn--active" : ""}`}
+              onClick={() => switchCv(tab.id)}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="cv-stage-main">
+        <div
+          className={`cv-tilt${tiltDisabled ? " cv-tilt--static" : ""}`}
+          ref={tiltRef}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={resetTilt}
         >
-          <AnimatePresence mode="wait">
-            {activeBloc ? (
-              <motion.div
-                key={activeBloc.id}
-                className="me-panel-detail-content"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={fadeTransition}
-              >
-                <DetailContent bloc={activeBloc} />
-              </motion.div>
-            ) : (
-              <motion.p
-                key="placeholder"
-                className="me-panel-detail-placeholder"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                Sélectionnez un thème pour afficher le contenu.
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </section>
-      </main>
+          <article
+            className={`cv-sheet${activeCv === "metier" ? " cv-sheet--classic" : " cv-sheet--persona"}`}
+            ref={sheetRef}
+            aria-label={`CV de ${CV_IDENTITY.name} — ${activeCv === "perso" ? "personnel" : "métier"}`}
+          >
+            <div className="cv-glare" aria-hidden="true" />
+
+            <div className="cv-swap">
+              <AnimatePresence mode="wait" custom={direction} initial={false}>
+                <motion.div
+                  key={activeCv}
+                  custom={direction}
+                  initial={{ opacity: 0, x: direction * slide }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction * -slide }}
+                  transition={{ duration: reduceMotion ? 0 : 0.28, ease: EASE_OUT }}
+                >
+                  {activeCv === "perso" ? (
+                    <CvPersoPanel />
+                  ) : (
+                    <div className="cv-layout">
+                      <CvSidebar
+                        activeVideoKey={activeVideoKey}
+                        onVideoEnter={onVideoEnter}
+                        onVideoLeave={onVideoLeave}
+                      />
+                      <CvMetierMain
+                        activeVideoKey={activeVideoKey}
+                        onVideoEnter={onVideoEnter}
+                        onVideoLeave={onVideoLeave}
+                      />
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </article>
+        </div>
+
+        <aside
+          className="cv-stage-aside"
+          onMouseEnter={cancelVideoLeave}
+          onMouseLeave={clearVideo}
+        >
+          <HeroActions
+            variant="panel"
+            reduceMotion={reduceMotion}
+            onViewProjects={handleViewProjects}
+            onContact={handleContact}
+          />
+          {activeCv === "metier" ? <CvVideoPlayer videoKey={activeVideoKey} /> : null}
+        </aside>
+      </div>
     </div>
   );
 }
