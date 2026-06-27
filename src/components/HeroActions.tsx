@@ -28,8 +28,6 @@ interface HeroActionsProps {
   compact?: boolean;
   /** Ouvrir la section Projets. */
   onViewProjects: () => void;
-  /** Aller au contact (scroll dans le CV ou ouverture section). */
-  onContact: () => void;
 }
 
 export function HeroActions({
@@ -37,7 +35,6 @@ export function HeroActions({
   variant = "panel",
   compact = false,
   onViewProjects,
-  onContact,
 }: HeroActionsProps) {
   const duration = reduceMotion ? 0 : 0.6;
   const isPanel = variant === "panel";
@@ -66,14 +63,6 @@ export function HeroActions({
             aria-label="Voir mes projets"
           >
             Voir mes projets
-          </button>
-          <button
-            type="button"
-            className="hero-actions-btn hero-actions-btn--ghost"
-            onClick={onContact}
-            aria-label="Me contacter"
-          >
-            Me contacter
           </button>
           {CV_URL && (
             <a

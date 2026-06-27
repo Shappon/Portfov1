@@ -37,17 +37,11 @@ const EASE_OUT = [0.22, 0.61, 0.36, 1] as const;
 
 interface MePanelProps {
   onViewProjects?: () => void;
-  onContact?: () => void;
-}
-
-function scrollToCvContact(): void {
-  document.querySelector(".cv-sidebar-coords")?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 interface VideoHoverHandlers {
   activeVideoKey: CvVideoKey | null;
   onVideoEnter: (key: CvVideoKey) => void;
-  onVideoLeave: () => void;
 }
 
 function CvCompanyLine({
@@ -55,13 +49,11 @@ function CvCompanyLine({
   fallback,
   activeVideoKey,
   onVideoEnter,
-  onVideoLeave,
 }: {
   parts?: readonly CvCompanyPart[];
   fallback: string;
   activeVideoKey: CvVideoKey | null;
   onVideoEnter: (key: CvVideoKey) => void;
-  onVideoLeave: () => void;
 }) {
   if (!parts?.length) {
     return <span>{fallback}</span>;
@@ -81,9 +73,7 @@ function CvCompanyLine({
             role="button"
             tabIndex={0}
             onMouseEnter={() => onVideoEnter(part.videoKey!)}
-            onMouseLeave={onVideoLeave}
             onFocus={() => onVideoEnter(part.videoKey!)}
-            onBlur={onVideoLeave}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -99,7 +89,7 @@ function CvCompanyLine({
   );
 }
 
-function CvSidebar({ activeVideoKey, onVideoEnter, onVideoLeave }: VideoHoverHandlers) {
+function CvSidebar({ activeVideoKey, onVideoEnter }: VideoHoverHandlers) {
   return (
     <aside className="cv-sidebar" aria-label="Informations personnelles">
       <div className="cv-sidebar-deco" aria-hidden="true" />
@@ -129,7 +119,6 @@ function CvSidebar({ activeVideoKey, onVideoEnter, onVideoLeave }: VideoHoverHan
                   fallback={edu.diploma}
                   activeVideoKey={activeVideoKey}
                   onVideoEnter={onVideoEnter}
-                  onVideoLeave={onVideoLeave}
                 />
               </strong>
               <span>{edu.school}</span>
@@ -218,7 +207,7 @@ function CvSkillsGrid() {
   );
 }
 
-function CvMetierMain({ activeVideoKey, onVideoEnter, onVideoLeave }: VideoHoverHandlers) {
+function CvMetierMain({ activeVideoKey, onVideoEnter }: VideoHoverHandlers) {
   return (
     <div className="cv-main">
       <section className="cv-main-section">
@@ -235,7 +224,6 @@ function CvMetierMain({ activeVideoKey, onVideoEnter, onVideoLeave }: VideoHover
                       fallback={xp.company}
                       activeVideoKey={activeVideoKey}
                       onVideoEnter={onVideoEnter}
-                      onVideoLeave={onVideoLeave}
                     />
                   </p>
                 </div>
@@ -261,7 +249,7 @@ function CvMetierMain({ activeVideoKey, onVideoEnter, onVideoLeave }: VideoHover
   );
 }
 
-export function MePanel({ onViewProjects, onContact }: MePanelProps = {}) {
+export function MePanel({ onViewProjects }: MePanelProps = {}) {
   const reduceMotion = useMediaQueryMatch("(prefers-reduced-motion: reduce)");
   const isCoarsePointer = useMediaQueryMatch("(pointer: coarse)");
   const tiltDisabled = reduceMotion || isCoarsePointer;
@@ -272,52 +260,23 @@ export function MePanel({ onViewProjects, onContact }: MePanelProps = {}) {
   const [activeCv, setActiveCv] = useState<CvId>("metier");
   const [direction, setDirection] = useState(1);
   const [activeVideoKey, setActiveVideoKey] = useState<CvVideoKey | null>(null);
-  const videoLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onVideoEnter = useCallback((key: CvVideoKey) => {
-    if (videoLeaveTimerRef.current) {
-      clearTimeout(videoLeaveTimerRef.current);
-      videoLeaveTimerRef.current = null;
-    }
     setActiveVideoKey(key);
   }, []);
 
-  const onVideoLeave = useCallback(() => {
-    if (videoLeaveTimerRef.current) clearTimeout(videoLeaveTimerRef.current);
-    videoLeaveTimerRef.current = setTimeout(() => {
-      setActiveVideoKey(null);
-      videoLeaveTimerRef.current = null;
-    }, 280);
+  const switchCv = useCallback((id: CvId) => {
+    setActiveCv((current) => {
+      if (current === id) return current;
+      const currentIndex = CV_TABS.findIndex((t) => t.id === current);
+      const nextIndex = CV_TABS.findIndex((t) => t.id === id);
+      setDirection(nextIndex > currentIndex ? 1 : -1);
+      if (id === "perso") {
+        setActiveVideoKey(null);
+      }
+      return id;
+    });
   }, []);
-
-  const cancelVideoLeave = useCallback(() => {
-    if (videoLeaveTimerRef.current) {
-      clearTimeout(videoLeaveTimerRef.current);
-      videoLeaveTimerRef.current = null;
-    }
-  }, []);
-
-  const clearVideo = useCallback(() => {
-    cancelVideoLeave();
-    setActiveVideoKey(null);
-  }, [cancelVideoLeave]);
-
-  const switchCv = useCallback(
-    (id: CvId) => {
-      setActiveCv((current) => {
-        if (current === id) return current;
-        const currentIndex = CV_TABS.findIndex((t) => t.id === current);
-        const nextIndex = CV_TABS.findIndex((t) => t.id === id);
-        setDirection(nextIndex > currentIndex ? 1 : -1);
-        if (id === "perso") {
-          cancelVideoLeave();
-          setActiveVideoKey(null);
-        }
-        return id;
-      });
-    },
-    [cancelVideoLeave]
-  );
 
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
@@ -354,7 +313,6 @@ export function MePanel({ onViewProjects, onContact }: MePanelProps = {}) {
   const handleViewProjects = onViewProjects ?? (() => {
     window.location.assign("/projects");
   });
-  const handleContact = onContact ?? scrollToCvContact;
 
   return (
     <div className="cv-stage">
@@ -404,16 +362,8 @@ export function MePanel({ onViewProjects, onContact }: MePanelProps = {}) {
                     <CvPersoPanel />
                   ) : (
                     <div className="cv-layout">
-                      <CvSidebar
-                        activeVideoKey={activeVideoKey}
-                        onVideoEnter={onVideoEnter}
-                        onVideoLeave={onVideoLeave}
-                      />
-                      <CvMetierMain
-                        activeVideoKey={activeVideoKey}
-                        onVideoEnter={onVideoEnter}
-                        onVideoLeave={onVideoLeave}
-                      />
+                      <CvSidebar activeVideoKey={activeVideoKey} onVideoEnter={onVideoEnter} />
+                      <CvMetierMain activeVideoKey={activeVideoKey} onVideoEnter={onVideoEnter} />
                     </div>
                   )}
                 </motion.div>
@@ -422,16 +372,11 @@ export function MePanel({ onViewProjects, onContact }: MePanelProps = {}) {
           </article>
         </div>
 
-        <aside
-          className="cv-stage-aside"
-          onMouseEnter={cancelVideoLeave}
-          onMouseLeave={clearVideo}
-        >
+        <aside className="cv-stage-aside">
           <HeroActions
             variant="panel"
             reduceMotion={reduceMotion}
             onViewProjects={handleViewProjects}
-            onContact={handleContact}
           />
           {activeCv === "metier" ? <CvVideoPlayer videoKey={activeVideoKey} /> : null}
         </aside>

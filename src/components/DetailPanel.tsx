@@ -17,10 +17,9 @@ interface DetailPanelProps {
   section: SectionForPanel;
   onBack: () => void;
   onViewProjects?: () => void;
-  onContact?: () => void;
 }
 
-export function DetailPanel({ mode, section, onBack, onViewProjects, onContact }: DetailPanelProps) {
+export function DetailPanel({ mode, section, onBack, onViewProjects }: DetailPanelProps) {
   const isVisible = mode === "detail";
   const reduceMotion = useMediaQueryMatch("(prefers-reduced-motion: reduce)");
 
@@ -80,11 +79,6 @@ export function DetailPanel({ mode, section, onBack, onViewProjects, onContact }
               </div>
               <div className="min-w-0 flex-grow-1">
                 <h2 className="h6 mb-0 text-white text-truncate">{section.title}</h2>
-                {section.subtitle ? (
-                  <p className="small mb-0 text-truncate d-none d-sm-block" style={{ color: "rgba(255, 255, 255, 0.55)" }}>
-                    {section.subtitle}
-                  </p>
-                ) : null}
               </div>
               <button
                 type="button"
@@ -124,7 +118,7 @@ export function DetailPanel({ mode, section, onBack, onViewProjects, onContact }
             style={{ opacity: bodyStyle.opacity, transform: bodyStyle.y.to((y) => `translateY(${y}px)`) }}
           >
             {section.id === "me" && (
-              <MePanel onViewProjects={onViewProjects} onContact={onContact} />
+              <MePanel onViewProjects={onViewProjects} />
             )}
             {section.id === "projects" && <ProjectsPanel />}
           </animated.div>

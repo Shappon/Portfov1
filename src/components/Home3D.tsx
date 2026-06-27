@@ -71,10 +71,6 @@ export default function Home3D() {
 
   const onViewProjects = useCallback(() => openSection("projects"), [openSection]);
 
-  const scrollToCvContact = useCallback(() => {
-    document.querySelector(".cv-contact-list")?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, []);
-
   useEffect(() => {
     document.body.classList.add("home-fullpage");
     return () => document.body.classList.remove("home-fullpage");
@@ -173,7 +169,6 @@ export default function Home3D() {
               section={{ id: active.id, title: active.title, subtitle: active.subtitle }}
               onBack={exit}
               onViewProjects={onViewProjects}
-              onContact={scrollToCvContact}
             />
           </>
         )}

@@ -9,12 +9,7 @@ export default function MePage() {
 
   return (
     <SectionPageLayout title="Moi">
-      <MePanel
-        onViewProjects={() => router.push("/projects")}
-        onContact={() => {
-          document.querySelector(".cv-contact-list")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }}
-      />
+      <MePanel onViewProjects={() => router.push("/projects")} />
     </SectionPageLayout>
   );
 }

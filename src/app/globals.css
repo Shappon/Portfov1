@@ -600,7 +600,9 @@ a:focus-visible {
   width: 100%;
   background: #000;
 }
-.cv-video-player-frame iframe {
+.cv-video-player-frame iframe,
+.cv-video-player-embed,
+.cv-video-player-embed iframe {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -782,6 +784,10 @@ a:focus-visible {
 .projects-panel-root,
 .projects-panel-view {
   min-height: 0;
+}
+
+.projects-panel-view:has(.project-case-study) {
+  align-items: center;
 }
 
 .projects-panel-explorer--scrollable {
@@ -2683,8 +2689,13 @@ a:focus-visible {
 
 /* ——— ProjectCaseStudy (case study recruteur) ——— */
 .project-case-study {
-  padding: 0 0 2.5rem;
+  --case-study-max: min(56rem, 100%);
+  width: 100%;
+  max-width: var(--case-study-max);
+  margin-inline: auto;
+  padding: 0 clamp(0.75rem, 2.5vw, 1.5rem) 2.5rem;
   min-height: 0;
+  box-sizing: border-box;
 }
 .project-case-study-nav {
   flex-shrink: 0;
@@ -4518,7 +4529,7 @@ a:focus-visible {
 }
 @media (max-width: 576px) {
   .project-case-study {
-    padding: 0 0 1.5rem;
+    padding-bottom: 1.5rem;
   }
   .project-case-study-nav { margin-bottom: 0.6rem; }
   .project-case-study-back { font-size: 0.82rem; }
